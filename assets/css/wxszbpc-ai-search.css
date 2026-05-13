@@ -1,0 +1,5 @@
+.wxs-search-button-red{background:rgb(255,24,86);right:106%;border-bottom-right-radius:0;border-top-right-radius:0;color:#fff;position:absolute}
+.wxs-search-button-blue{background:rgb(0,136,255);border:1px solid #33aaff;color:#fff;border-radius:18px;border-bottom-left-radius:0;border-top-left-radius:0;margin-right:-17px}
+a#search-heoGPT-tips{padding:8px 12px;border-radius:12px;border:1px solid var(--main-color);max-width:600px;margin:auto;display:flex;align-items:center}
+span.search-heoGPT-text{margin-left:8px;line-height:1.2}
+span.search-heoGPT-text-right{margin-left:auto;padding:6px 8px;border-radius:8px;background:rgb(87,189,106);color:#fff;line-height:1;font-size:12px;white-space:nowrap}
