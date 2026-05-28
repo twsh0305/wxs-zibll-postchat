@@ -644,6 +644,31 @@ function wxs_postchat_options() {
         ],
     ] );
 
+    // ========== 相关推荐 ==========
+    CSF::createSection( $prefix, [
+        'title'  => '相关推荐',
+        'icon'   => 'fa fa-th-list',
+        'fields' => [
+            [
+                'id'      => 'enable_related_posts',
+                'type'    => 'switcher',
+                'title'   => '启用AI相关推荐',
+                'desc'    => '开启后将替换主题原生相关文章，使用 PostChat AI 推荐 + 本地算法回退方案。关闭后恢复主题默认相关文章。',
+                'default' => true,
+            ],
+            [
+                'type'       => 'submessage',
+                'style'      => 'info',
+                'content'    => '<strong>功能说明：</strong><br>'
+                    . '• 使用 PostChat 推荐 API 获取 AI 相关文章，并缓存到 Redis（12小时 TTL）<br>'
+                    . '• 缓存未命中时立即渲染本地算法结果，后台异步请求 API<br>'
+                    . '• AI 推荐不足时自动用本地算法补足<br>'
+                    . '• AI 推荐的文章带「AI推荐」角标',
+                'dependency' => [ 'enable_related_posts', '==', true ],
+            ],
+        ],
+    ] );
+
     // ========== 文章摘要管理 ==========
     CSF::createSection( $prefix, [
         'title'  => '文章摘要管理',

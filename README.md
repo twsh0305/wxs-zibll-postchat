@@ -29,6 +29,7 @@
 | 📰 **内容管理** | 后台可视化编辑、搜索、删除、批量删除摘要 |
 | 🎨 **深度适配** | 子比主题 CSS 选择器深度适配，完美融合 |
 | 👋 **用户引导** | 基于 driver.js 的新用户操作引导，Cookie 控制不重复显示 |
+| 🔗 **AI 相关推荐** | PostChat AI 推荐 + 本地算法回退，Redis 异步缓存，AI 推荐文章带角标 |
 | 🚫 **黑名单** | 支持 URL 通配符黑名单，排除不想要的页面 |
 
 ---
@@ -70,6 +71,7 @@
 
 - **摘要设置** — 配置 API Key、选择器、主题样式等
 - **AI 对话设置** — 配置对话模式、按钮样式、预填问题等
+- **相关推荐** — 启用/关闭 AI 相关文章推荐
 - **用户引导** — 配置引导步骤与触发时机
 
 ---
@@ -96,6 +98,18 @@
 | 默认输入 | 支持 `{title}` 变量替换当前文章标题 |
 | 上传网页 | 浏览文章时自动上传内容到 AI 知识库 |
 
+### 相关推荐
+
+| 配置项 | 说明 |
+|--------|------|
+| 启用 AI 相关推荐 | 开启后替换主题原生相关文章，关闭后恢复主题默认行为 |
+
+**工作机制：**
+1. 页面加载时只读 Redis 缓存（微秒级），绝不阻塞
+2. 缓存命中且有数据 → 渲染 AI 推荐（带「AI推荐」角标）+ 本地算法补足
+3. 缓存命中但为空 → 渲染本地算法（等 TTL 过期后重试 API）
+4. 缓存未命中 → 立即渲染本地算法 + shutdown 钩子异步请求 API 写入 Redis
+
 ### 按钮劫持模式配置
 
 1. 进入子比主题设置 → 全局&功能 → 右侧悬浮按钮 → 更多按钮
@@ -114,6 +128,7 @@ wxs-zibll-postchat/
 │   ├── options.php           # CSF 选项配置（后台设置页面）
 │   ├── output.php            # 前端 JS/CSS 输出 + 摘要注入
 │   ├── listener.php          # 文章发布监听 + API 调用 + AJAX 接口
+│   ├── related-posts.php     # AI 相关文章推荐（PostChat API + 本地算法 + Redis 缓存）
 │   └── updater.php           # GitHub 更新检查器
 ├── assets/
 │   ├── css/
@@ -156,6 +171,8 @@ wxs-zibll-postchat/
 | `wp_ajax_wxs_postchat_delete_summary` | 删除摘要 |
 | `wp_ajax_wxs_postchat_batch_delete_summary` | 批量删除摘要 |
 | `wp_ajax_wxs_postchat_search_summary` | 搜索摘要 |
+| `wp_ajax_wxs_related_paged` | 相关文章 AJAX 分页 |
+| `wp_ajax_nopriv_wxs_related_paged` | 相关文章 AJAX 分页（未登录） |
 
 ### 常量
 

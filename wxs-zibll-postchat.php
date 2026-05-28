@@ -3,7 +3,7 @@
  * Plugin Name: 子比PostChat
  * Plugin URI: https://wxsnote.cn/7673.html
  * Description: 基于子比主题的PostChat AI摘要与对话集成插件，支持私有摘要存储与前端注入。
- * Version: 1.0.0
+ * Version: 1.0.1
  * Author: 天无神话
  * Author URI: https://wxsnote.cn
  * License: GPL v2 or later
@@ -62,6 +62,7 @@ if ( get_template() !== 'zibll' ) {
 require_once WXS_POSTCHAT_DIR . 'inc/options.php';
 require_once WXS_POSTCHAT_DIR . 'inc/output.php';
 require_once WXS_POSTCHAT_DIR . 'inc/listener.php';
+require_once WXS_POSTCHAT_DIR . 'inc/related-posts.php';
 
 // 在主文件 scope 注册停用钩子（符合 WP 插件开发规范）
 register_deactivation_hook( __FILE__, 'wxs_postchat_deactivation_cleanup' );
