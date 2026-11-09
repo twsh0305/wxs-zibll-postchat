@@ -1,12 +1,12 @@
 <?php
 /**
- * 相关文章 - PostChat AI 推荐（异步 + Redis 缓存）+ 本地算法回退
+ * 相关文章 - PostChat AI 推荐（异步 + transient 缓存）+ 本地算法回退
  * 
  * 核心机制：
- * 1. 页面加载时只读 Redis 缓存（微秒级），绝不阻塞
+ * 1. 页面加载时只读缓存（数据库 transient），绝不阻塞
  * 2. 缓存命中且有数据 → 渲染 AI 推荐（带 AI 角标）
  * 3. 缓存命中但为空   → 渲染本地算法（API曾返回空，等TTL过期后重试）
- * 4. 缓存未命中       → 立即渲染本地算法 + shutdown 钩子异步请求 API 写入 Redis
+ * 4. 缓存未命中       → 立即渲染本地算法 + shutdown 钩子异步请求 API 写入缓存
  *    └ fastcgi_finish_request() 先发送响应，API 调用在浏览器收到页面后执行
  * 
  * API: POST api.ai.zhheo.com/api/v2/recommend/generate/external
@@ -14,7 +14,8 @@
  * 
  * @package WXS_Zibll_PostChat
  * @since 2026-02-03
- * @updated 2026-02-13  接入 PostChat 推荐 API + 异步 Redis 缓存 + AI 角标
+ * @updated 2026-02-13  接入 PostChat 推荐 API + 异步缓存 + AI 角标
+ * @updated 2026-11-09  缓存后端 wp_cache_* 改为 transient（无 Redis 也可持久化），缓存时长改为后台可配
  */
 
 // 防止直接访问
@@ -25,27 +26,31 @@ if ( ! defined( 'ABSPATH' ) ) {
 // 异步任务队列（当前请求中收集，shutdown 时统一执行）
 $GLOBALS['wxs_related_async_queue'] = [];
 
-// ==================== Redis 缓存操作 ====================
+// ==================== 推荐结果缓存 ====================
 
 /**
- * 从 Redis 读取推荐缓存
- * 
+ * 读取推荐缓存
+ *
+ * 使用 transient（数据库持久化），未启用 Redis 时也能跨请求生效
+ *
  * @param int  $post_id 文章ID
  * @param bool &$found  是否命中缓存（区分 false 和缓存的空数组）
  * @return mixed 缓存数据或 false
  */
 function wxs_related_cache_get($post_id, &$found = false) {
-    return wp_cache_get('wxs_rel_' . $post_id, 'wxs_related', false, $found);
+    $cached = get_transient('wxs_rel_' . $post_id);
+    $found  = (false !== $cached);
+    return $found ? $cached : false;
 }
 
 /**
- * 写入推荐缓存到 Redis（12小时 TTL）
- * 
+ * 写入推荐缓存，时长由后台设置决定（默认 12 小时）
+ *
  * @param int   $post_id  文章ID
  * @param array $post_ids 推荐的文章ID数组
  */
 function wxs_related_cache_set($post_id, $post_ids) {
-    wp_cache_set('wxs_rel_' . $post_id, $post_ids, 'wxs_related', 12 * HOUR_IN_SECONDS);
+    set_transient('wxs_rel_' . $post_id, $post_ids, wxs_postchat_related_cache_ttl('related'));
 }
 
 /**
@@ -54,7 +59,7 @@ function wxs_related_cache_set($post_id, $post_ids) {
  * @param int $post_id 文章ID
  */
 function wxs_related_cache_delete($post_id) {
-    wp_cache_delete('wxs_rel_' . $post_id, 'wxs_related');
+    delete_transient('wxs_rel_' . $post_id);
 }
 
 /**
@@ -162,7 +167,7 @@ function wxs_url_to_post_id($url) {
 // ==================== 异步获取（shutdown 钩子） ====================
 
 /**
- * shutdown 钩子：在响应发送后异步获取 AI 推荐并写入 Redis
+ * shutdown 钩子：在响应发送后异步获取 AI 推荐并写入缓存（transient）
  * 通过 fastcgi_finish_request() 先将页面返回给浏览器，再执行 API 调用
  */
 function wxs_async_fetch_recommendations() {
@@ -192,11 +197,11 @@ function wxs_async_fetch_recommendations() {
             }
         }
 
-        // 写入 Redis（即使为空也缓存，避免反复请求）
+        // 写入缓存（即使为空也缓存，避免反复请求）
         wxs_related_cache_set($task['post_id'], $post_ids);
 
         // 清除防重锁
-        wp_cache_delete('wxs_rel_lock_' . $task['post_id'], 'wxs_related');
+        delete_transient('wxs_rel_lock_' . $task['post_id']);
     }
 }
 add_action('shutdown', 'wxs_async_fetch_recommendations');
@@ -539,9 +544,9 @@ function wxs_render_related_posts($post_ids, $related_title, $thumb_s, $ai_post_
  * 相关文章主函数 - AI 优先 + 本地补足
  * 
  * 流程：
- * ┌─ Redis 命中 + 有数据 → AI 优先 + 本地补足至 limit 条  [0延迟]
- * ├─ Redis 命中 + 空数据 → 纯本地算法                      [0延迟]
- * └─ Redis 未命中        → 纯本地算法 + 异步请求API         [0延迟]
+ * ┌─ 缓存命中 + 有数据 → AI 优先 + 本地补足至 limit 条  [0延迟]
+ * ├─ 缓存命中 + 空数据 → 纯本地算法                      [0延迟]
+ * └─ 缓存未命中        → 纯本地算法 + 异步请求API         [0延迟]
  * 
  * @param string $related_title 版块标题
  * @param int    $limit         显示数量
@@ -553,7 +558,7 @@ function wxs_posts_related($related_title = '相关推荐', $limit = 6, $orderby
     $current_post_id = $post->ID;
     $thumb_s = _pz('post_related_type') == 'img';
 
-    // 从 Redis 读取缓存（$found 区分「未缓存」和「缓存了空数组」）
+    // 读取缓存（$found 区分「未缓存」和「缓存了空数组」）
     $found  = false;
     $cached = wxs_related_cache_get($current_post_id, $found);
 
@@ -595,10 +600,10 @@ function wxs_posts_related($related_title = '相关推荐', $limit = 6, $orderby
     wxs_posts_related_local($related_title, $limit, $orderby);
 
     // 检查防重锁，避免并发请求重复调 API
-    $lock = wp_cache_get('wxs_rel_lock_' . $current_post_id, 'wxs_related');
+    $lock = get_transient('wxs_rel_lock_' . $current_post_id);
     if (!$lock) {
         // 设置 2 分钟防重锁
-        wp_cache_set('wxs_rel_lock_' . $current_post_id, 1, 'wxs_related', 120);
+        set_transient('wxs_rel_lock_' . $current_post_id, 1, 120);
 
         // 加入异步队列，shutdown 时执行
         $GLOBALS['wxs_related_async_queue'][] = [

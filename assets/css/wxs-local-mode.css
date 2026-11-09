@@ -1,0 +1,212 @@
+/**
+ * WXS 本站模式统一样式
+ *
+ * 包含：AI摘要卡片 / 专业词汇气泡 / 相关文章推荐
+ * 子比暗夜模式适配：body.dark-theme 下自动切换
+ *
+ * CSS 变量策略：引用子比主题变量实现自动亮暗适配
+ *
+ * @package WXS_Zibll_PostChat
+ * @since 1.1.0
+ */
+
+/* ==================== CSS 变量 ==================== */
+:root {
+    /* 引用子比主题变量，自动跟随亮/暗模式切换 */
+    --wxs-card-bg: var(--main-bg-color, #f8f9fa);
+    --wxs-card-border: var(--main-border-color, #e5e5e5);
+    --wxs-card-radius: var(--main-radius, 8px);
+    --wxs-card-shadow: var(--main-shadow, 0 1px 4px rgba(0,0,0,.06));
+    --wxs-text-primary: var(--key-color, #333);
+    --wxs-text-secondary: var(--muted-color, #666);
+    --wxs-accent: var(--theme-color, #3e86f6);
+}
+
+/* ==================== AI 摘要卡片 ==================== */
+/* 设计原则：融入文章正文而非独立卡片，不用 heading 标签，data-nosnippet 防搜索引擎抓取 */
+.wxs-ai-summary {
+    position: relative;
+    margin: 24px 0;
+    background: var(--wxs-summary-bg, rgba(0,0,0,0.015));
+    border-left: 2px solid var(--wxs-accent);
+    border-radius: 0 6px 6px 0;
+}
+.wxs-ai-summary-inner {
+    padding: 14px 18px;
+}
+.wxs-ai-summary-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+.wxs-ai-summary-icon {
+    width: 16px;
+    height: 16px;
+    color: var(--wxs-accent);
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+.wxs-ai-summary-label {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--wxs-muted, #999);
+    letter-spacing: 0.5px;
+}
+.wxs-ai-summary-name {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--wxs-muted, #999);
+    opacity: 0.8;
+    white-space: nowrap;
+}
+.wxs-ai-summary-body {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--wxs-text-secondary);
+}
+
+/* 暗夜：摘要卡片 */
+.dark-theme .wxs-ai-summary {
+    background: rgba(255, 255, 255, 0.04);
+    border-left-color: var(--wxs-accent);
+}
+.dark-theme .wxs-ai-summary-body {
+    color: #aaa;
+}
+
+/* ==================== 专业词汇解释气泡 ==================== */
+.wxs-ai-glossary {
+    position: relative;
+    border-bottom: 1px dashed var(--wxs-accent);
+    cursor: help;
+    /* 不设 color，继承父级（与 A 标签共存时继承链接颜色） */
+}
+.wxs-ai-glossary::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-8px);
+    background: #333;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    line-height: 1.6;
+    min-width: 120px;
+    max-width: 360px;
+    width: max-content;
+    white-space: normal;
+    word-break: break-word;
+    text-align: left;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .25s, visibility .25s;
+    z-index: 1000;
+    pointer-events: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,.15);
+}
+/* 小三角箭头 */
+.wxs-ai-glossary::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    border: 5px solid transparent;
+    border-top-color: #333;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .25s, visibility .25s;
+    z-index: 1001;
+    pointer-events: none;
+}
+.wxs-ai-glossary:hover::after,
+.wxs-ai-glossary:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 暗夜：词汇气泡 */
+.dark-theme .wxs-ai-glossary::after {
+    background: #e8e8e8;
+    color: #1a1a2e;
+}
+.dark-theme .wxs-ai-glossary::before {
+    border-top-color: #e8e8e8;
+}
+
+/* ==================== 相关文章推荐 ==================== */
+/* 复用子比 zib-widget 的 background/padding/border-radius/shadow */
+.wxs-ai-recommend {
+    margin-top: 30px;
+}
+.wxs-ai-recommend-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 14px;
+    color: var(--wxs-text-primary);
+}
+.wxs-ai-recommend-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* 小屏双列 */
+@media (max-width: 768px) {
+    .wxs-ai-recommend-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.wxs-ai-recommend-item a {
+    display: block;
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--wxs-card-bg);
+    box-shadow: var(--wxs-card-shadow);
+    transition: box-shadow .2s;
+    text-decoration: none;
+}
+.wxs-ai-recommend-item a:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+.wxs-ai-recommend-thumb {
+    width: 100%;
+    height: 100px;
+    object-fit: cover;
+    display: block;
+}
+.wxs-ai-recommend-name {
+    display: block;
+    padding: 8px 10px;
+    font-size: 13px;
+    line-height: 1.4;
+    color: var(--wxs-text-primary);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* 暗夜：推荐文章（容器背景由 zib-widget 暗夜变量自动适配） */
+.dark-theme .wxs-ai-recommend-item a {
+    background: rgba(255, 255, 255, 0.06);
+}
+.dark-theme .wxs-ai-recommend-item a:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* ==================== 响应式小屏 ==================== */
+@media (max-width: 480px) {
+    .wxs-ai-recommend-list {
+        grid-template-columns: 1fr;
+    }
+    .wxs-ai-recommend {
+        padding: 14px;
+    }
+}

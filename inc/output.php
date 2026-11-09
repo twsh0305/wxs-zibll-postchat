@@ -118,7 +118,8 @@ function wxs_postchat_add_content_wrapper( $content ) {
     if ( ! is_single() ) {
         return $content;
     }
-    $enable_summary = wxs_postchat_get_option( 'enable_summary', true );
+    // 默认值与设置页保持一致（启用AI摘要默认关闭）
+    $enable_summary = wxs_postchat_get_option( 'enable_summary', false );
     if ( ! $enable_summary ) {
         return $content;
     }
@@ -137,7 +138,7 @@ function wxs_postchat_add_content_wrapper( $content ) {
     // 仅当选择器指向 #postchat_postcontent 时才包裹
     if ( $post_type === 'post' && wxs_postchat_get_option( 'enable_article_summary', true ) ) {
         $content = '<div id="postchat_postcontent">' . $content . '</div>';
-    } elseif ( $post_type === 'forum_post' && function_exists( '_pz' ) && _pz( 'bbs_s', true ) && wxs_postchat_get_option( 'enable_forum_summary', true ) ) {
+    } elseif ( $post_type === 'forum_post' && function_exists( '_pz' ) && _pz( 'bbs_s', true ) && wxs_postchat_get_option( 'enable_forum_summary', false ) ) {
         $content = '<div id="postchat_postcontent">' . $content . '</div>';
     }
     return $content;
@@ -148,8 +149,9 @@ function wxs_postchat_add_content_wrapper( $content ) {
  */
 add_action( 'wp_footer', 'wxs_postchat_render_footer' );
 function wxs_postchat_render_footer() {
-    $enable_summary = wxs_postchat_get_option( 'enable_summary', true );
-    $enable_ai      = wxs_postchat_get_option( 'enable_ai', true );
+    // 默认值与设置页保持一致
+    $enable_summary = wxs_postchat_get_option( 'enable_summary', false );
+    $enable_ai      = wxs_postchat_get_option( 'enable_ai', false );
 
     // 摘要和AI均未开启则不输出
     if ( ! $enable_summary && ! $enable_ai ) {
@@ -178,7 +180,7 @@ function wxs_postchat_render_footer() {
             $show_summary      = true;
             $page_post_url     = wxs_postchat_get_option( 'post_url', '/^https?:\\/\\/[^/]+\\/\\d+\\.html.*/' );
             $page_post_selector = wxs_postchat_get_option( 'post_selector', '.single-post .wp-posts-content' );
-        } elseif ( $is_forum_post && $forum_enabled && wxs_postchat_get_option( 'enable_forum_summary', true ) ) {
+        } elseif ( $is_forum_post && $forum_enabled && wxs_postchat_get_option( 'enable_forum_summary', false ) ) {
             $show_summary      = true;
             $page_post_url     = wxs_postchat_get_option( 'forum_post_url', '/\\/forum-post\\/\\d+\\.html$/' );
             $page_post_selector = wxs_postchat_get_option( 'forum_post_selector', '.forum-article .wp-posts-content' );
@@ -221,7 +223,7 @@ function wxs_postchat_render_footer() {
         $str_vars = [
             'tianliGPT_postSelector' => $page_post_selector,
             'tianliGPT_Title'        => wxs_postchat_get_option( 'summary_title', '智能总结摘要' ),
-            'tianliGPT_Name'         => wxs_postchat_get_option( 'summary_name', '王先生助理' ),
+            'tianliGPT_Name'         => wxs_postchat_get_option( 'summary_name', get_bloginfo( 'name' ) . '助理' ),
             'tianliGPT_postURL'      => $page_post_url,
             'tianliGPT_blacklist'    => wxs_postchat_get_option( 'blacklist_urls', '' ) ? add_query_arg( 'wxs_postchat_query', 'blacklist', home_url( '/' ) ) : '',
             'tianliGPT_injectDom'    => wxs_postchat_get_option( 'inject_dom', '' ),
@@ -239,7 +241,7 @@ function wxs_postchat_render_footer() {
 
         // 布尔变量：始终输出
         echo 'let tianliGPT_typingAnimate = ' . ( wxs_postchat_get_option( 'typing_animate', true ) ? 'true' : 'false' ) . ';' . "\n";
-        echo 'let tianliGPT_podcast = ' . ( wxs_postchat_get_option( 'podcast', true ) ? 'true' : 'false' ) . ';' . "\n";
+        echo 'let tianliGPT_podcast = ' . ( wxs_postchat_get_option( 'podcast', false ) ? 'true' : 'false' ) . ';' . "\n";
         echo 'let tianliGPT_loadingText = ' . ( wxs_postchat_get_option( 'loading_text', false ) ? 'true' : 'false' ) . ';' . "\n";
 
         // 注入数据库摘要（核心：将PHP数据注入为JS变量）
@@ -261,7 +263,7 @@ function wxs_postchat_render_footer() {
         $str_config = [
             'frameWidth'      => wxs_postchat_get_option( 'frame_width', '375px' ),
             'frameHeight'     => wxs_postchat_get_option( 'frame_height', '600px' ),
-            'userTitle'       => wxs_postchat_get_option( 'user_title', '王先生笔记的助理' ),
+            'userTitle'       => wxs_postchat_get_option( 'user_title', get_bloginfo( 'name' ) . '的助理' ),
             'userDesc'        => wxs_postchat_get_option( 'user_desc', '如果你对网站的内容有任何疑问，可以来问我哦～' ),
             'userIcon'        => wxs_postchat_get_option( 'user_icon', '' ),
         ];
@@ -272,7 +274,7 @@ function wxs_postchat_render_footer() {
         }
 
         // PostChat悬浮按钮样式：仅 postchat 模式时输出
-        $is_postchat_btn = ( wxs_postchat_get_option( 'enable_ai_btn', true ) && wxs_postchat_get_option( 'ai_btn_mode', 'hijack' ) === 'postchat' );
+        $is_postchat_btn = ( wxs_postchat_get_option( 'enable_ai_btn', true ) && wxs_postchat_get_option( 'ai_btn_mode', 'postchat' ) === 'postchat' );
         $config['addButton'] = $is_postchat_btn;
         if ( $is_postchat_btn ) {
             $btn_style = [
@@ -311,13 +313,26 @@ function wxs_postchat_render_footer() {
         $array_fields = [
             'defaultChatQuestions'   => wxs_postchat_get_option( 'default_chat_questions', '' ),
             'defaultSearchQuestions' => wxs_postchat_get_option( 'default_search_questions', '' ),
-            'blackDom'               => wxs_postchat_get_option( 'black_dom', '' ),
         ];
         foreach ( $array_fields as $key => $value ) {
             if ( $value !== '' && $value !== null ) {
                 $config[ $key ] = array_map( 'trim', explode( ',', $value ) );
             }
         }
+
+        // 屏蔽容器：始终排除子比隐藏内容（登录/评论/会员/付费/密码可见），
+        // 避免 DOM 上传到云端知识库后 AI 泄露受限内容；再合并用户自定义选择器
+        $black_dom = array( '.hidden-box', '.hide-content' );
+        $black_dom_raw = wxs_postchat_get_option( 'black_dom', '' );
+        if ( $black_dom_raw !== '' && $black_dom_raw !== null ) {
+            foreach ( explode( ',', $black_dom_raw ) as $dom ) {
+                $dom = trim( $dom );
+                if ( $dom !== '' && ! in_array( $dom, $black_dom, true ) ) {
+                    $black_dom[] = $dom;
+                }
+            }
+        }
+        $config['blackDom'] = $black_dom;
 
         // 数值字段：非空时转为整数加入
         $recommend = wxs_postchat_get_option( 'recommend', '' );
@@ -331,7 +346,7 @@ function wxs_postchat_render_footer() {
     }
 
     // ========== AI搜索CSS ==========
-    $enable_ai_search = $enable_ai && wxs_postchat_get_option( 'enable_ai_search', true );
+    $enable_ai_search = $enable_ai && wxs_postchat_get_option( 'enable_ai_search', false );
     if ( $enable_ai_search ) {
         echo '<link rel="stylesheet" href="' . esc_url( WXS_POSTCHAT_URL . 'assets/css/wxszbpc-ai-search.min.css?ver=' . WXS_POSTCHAT_VERSION ) . '">' . "\n";
     }
@@ -349,12 +364,12 @@ function wxs_postchat_render_footer() {
 
     // AI对话按钮配置（仅劫持模式）
     $enable_ai_btn = $enable_ai && wxs_postchat_get_option( 'enable_ai_btn', true );
-    $ai_btn_mode   = wxs_postchat_get_option( 'ai_btn_mode', 'hijack' );
+    $ai_btn_mode   = wxs_postchat_get_option( 'ai_btn_mode', 'postchat' );
     if ( $enable_ai_btn && $ai_btn_mode === 'hijack' ) {
         $ai_btn_selector = wxs_postchat_get_option( 'ai_btn_selector', '#ai-duihua' );
         if ( ! empty( $ai_btn_selector ) ) {
             $wxszbpc_config['aiBtnSelector'] = $ai_btn_selector;
-            $wxszbpc_config['aiBtnSvgIcon']  = wxs_postchat_get_option( 'ai_btn_svg_icon', '#wxsicon-koubei' );
+            $wxszbpc_config['aiBtnSvgIcon']  = wxs_postchat_get_option( 'ai_btn_svg_icon', '' );
             // 劫持按钮点击时的预填内容（仅在文章页/帖子页输出，其他页面让JS后备值处理）
             if ( ! empty( $default_input ) && ( $is_article || $is_forum_post ) ) {
                 $wxszbpc_config['defaultInput'] = wxs_postchat_replace_variables( $default_input );
@@ -366,7 +381,7 @@ function wxs_postchat_render_footer() {
     }
 
     // 用户引导配置
-    $enable_guide     = wxs_postchat_get_option( 'enable_user_guide', true );
+    $enable_guide     = wxs_postchat_get_option( 'enable_user_guide', false );
     $guide_trigger    = wxs_postchat_get_option( 'guide_trigger', 'logged_in' );
     $should_guide     = $enable_guide && ( ( $guide_trigger === 'all' ) || ( $guide_trigger === 'logged_in' && is_user_logged_in() ) );
     if ( $should_guide ) {

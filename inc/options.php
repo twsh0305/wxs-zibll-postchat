@@ -20,20 +20,21 @@ function wxs_postchat_options() {
 
     $prefix = WXS_POSTCHAT_PREFIX;
     $footer_text = sprintf(
-        '作者：天无神话 | 版本:v%s <i class="fa fa-fw fa-heart-o" aria-hidden="true"></i> PostChat AI',
+        '作者：天无神话 | 版本:v%s',
         esc_html( WXS_POSTCHAT_VERSION )
     );
 
     // 创建选项页面
     CSF::createOptions( $prefix, [
-        'menu_title'      => 'PostChat AI',
+        'menu_title'      => '子比AI摘要对话',
         'menu_slug'       => 'wxs-zibll-postchat',
-        'framework_title' => 'PostChat AI v' . WXS_POSTCHAT_VERSION,
+        'framework_title' => '子比AI v' . WXS_POSTCHAT_VERSION,
         'footer_text'     => $footer_text,
-        'footer_credit'   => 'PostChat AI作者：天无神话 ',
+        'footer_credit'   => '作者：天无神话',
         'theme'           => 'light',
         'menu_icon'       => 'dashicons-format-status',
         'menu_position'   => 32,
+        'show_sub_menu'   => false,
         'show_bar_menu'   => false,
     ] );
 
@@ -48,37 +49,64 @@ function wxs_postchat_options() {
         'fields' => [
             [
                 'type'    => 'heading',
-                'content' => '子比PostChat — 基于洪墨AI的摘要与对话集成插件',
+                'content' => '子比AI — 摘要与对话集成插件',
             ],
             [
                 'type'    => 'submessage',
                 'style'   => 'info',
-                'content' => '基于洪墨AI平台，为子比主题提供 AI 智能摘要、AI 对话、AI 搜索等功能的深度集成插件。',
+                'content' => '为子比主题提供 AI 智能摘要与 AI 对话功能，支持两种服务模式：',
             ],
             [
                 'type'    => 'heading',
-                'content' => '洪墨AI平台（必需）',
+                'content' => '🟢 洪墨AI模式（PostChat 云端服务）',
             ],
             [
                 'type'    => 'submessage',
-                'style'   => 'warning',
-                'content' => '本插件所有 AI 功能均基于 <strong>洪墨AI（PostChat）</strong> 平台提供，使用前需注册并获取 API Key。<br><br>'
-                    . '通过邀请链接注册可获得额外奖励：<br>'
+                'style'   => 'success',
+                'content' => '基于洪墨AI（PostChat）平台提供 AI 摘要、AI 对话、AI 搜索、AI 播客等全功能云端服务。<br>'
+                    . '需注册并获取 API Key，通过邀请链接注册可获得额外奖励：<br>'
                     . '• 被邀请用户开通 <strong>1年</strong>，双方各获得 <code>31天</code> 奖励<br>'
                     . '• 被邀请用户开通 <strong>1个月</strong>，双方各获得 <code>7天</code> 奖励<br><br>'
                     . '<a href="' . esc_url( $invite_url ) . '" target="_blank" class="button button-primary">🎁 注册洪墨AI（邀请链接）</a>',
             ],
             [
                 'type'    => 'heading',
-                'content' => '功能特性',
+                'content' => '🔵 本站模式（WP AI + Meilisearch）',
             ],
             [
                 'type'    => 'submessage',
                 'style'   => 'success',
-                'content' => '🤖 AI 智能摘要（支持私有摘要）&emsp;💬 AI 对话（支持按钮劫持 / 悬浮按钮）<br>'
-                    . '🔍 AI 搜索（集成搜索表单）&emsp;🎙️ AI 播客（文章语音播放）<br>'
-                    . '📝 批量生成缺失摘要&emsp;📰 支持文章 + 论坛帖子<br>'
-                    . '🎨 子比主题深度适配&emsp;👋 新用户引导提示',
+                'content' => '利用站点已有的 <strong>WordPress AI Client</strong>（AI连接器）+ <strong>Meilisearch</strong> 搜索引擎实现本地化 AI 功能，无需第三方云服务。<br><br>'
+                    . '• <strong>AI 摘要</strong>：通过 WP AI 原生接口生成，PHP 直接注入文章（Nginx 缓存友好）<br>'
+                    . '• <strong>AI 对话</strong>：Meilisearch 全文检索知识库上下文 → WP AI 生成回答 → 前端打字动画 + Markdown 渲染<br>'
+                    . '• <strong>自定义知识库</strong>：添加文章外的额外知识（如客服信息、常见问题），AI自动匹配回复<br>'
+                    . '• <strong>隐藏内容排除</strong>：自动过滤子比付费/密码/VIP 隐藏内容，防止 AI 泄露<br>'
+                    . '• <strong>专业词汇解释</strong>：电脑端文章页鼠标悬停术语显示解释气泡<br>'
+                    . '• <strong>相关文章推荐</strong>：基于 Meilisearch 语义检索展示相关文章<br>'
+                    . '• <strong>暗夜模式</strong>：完整适配子比暗夜主题切换<br><br>'
+                    . '<strong>前置条件：</strong>子比主题已启用 Meilisearch + 已安装 AI 连接器插件并配置 Key',
+            ],
+            [
+                'type'    => 'heading',
+                'content' => '功能对比',
+            ],
+            [
+                'type'    => 'submessage',
+                'style'   => '',
+                'content' => '<table class="widefat" style="max-width:700px">'
+                    . '<thead><tr><th>功能</th><th>洪墨AI</th><th>本站模式</th></tr></thead>'
+                    . '<tbody>'
+                    . '<tr><td>AI 智能摘要</td><td>✅</td><td>✅</td></tr>'
+                    . '<tr><td>AI 对话</td><td>✅</td><td>✅</td></tr>'
+                    . '<tr><td>AI 搜索</td><td>✅</td><td>❌（由 Meilisearch 承担）</td></tr>'
+                    . '<tr><td>AI 播客</td><td>✅</td><td>❌</td></tr>'
+                    . '<tr><td>隐藏内容排除</td><td>✅ 屏蔽容器排除</td><td>✅ 上下文剔除</td></tr>'
+                    . '<tr><td>自定义知识库</td><td>❌</td><td>✅</td></tr>'
+                    . '<tr><td>专业词汇解释</td><td>❌</td><td>✅</td></tr>'
+                    . '<tr><td>相关文章推荐</td><td>✅</td><td>✅</td></tr>'
+                    . '<tr><td>暗夜模式适配</td><td>✅</td><td>✅</td></tr>'
+                    . '<tr><td>文章数据隐私</td><td>❌ 存储于洪墨云端</td><td>✅ 不存储于第三方</td></tr>'
+                    . '</tbody></table>',
             ],
             [
                 'type'    => 'heading',
@@ -95,10 +123,466 @@ function wxs_postchat_options() {
         ],
     ] );
 
+    // ========== 服务模式切换 ==========
+    $local_ready = function_exists( 'wxs_postchat_local_ready' ) ? wxs_postchat_local_ready() : false;
+    $local_desc  = '洪墨AI：使用PostChat云端服务<br>本站模式：使用WP AI渠道 + Meilisearch（需确保两者已正确配置）';
+    if ( ! $local_ready ) {
+        $local_desc .= '<br><br><span style="color:#e74c3c;">⚠️ 本站模式不可用：</span>';
+        if ( ! function_exists( '_pz' ) || ! _pz( 'search_ms_s' ) ) {
+            $local_desc .= '<br>• Meilisearch 未启用（请在子比主题设置 → 搜索 → Meilisearch 中开启）';
+        }
+        if ( ! function_exists( 'wp_ai_client_prompt' ) || ! function_exists( 'wp_supports_ai' ) || ! wp_supports_ai() ) {
+            $local_desc .= '<br>• WP AI Client 不可用（请确保已安装AI连接器插件并配置Key，连接页面：<a href="' . esc_url( admin_url( 'options-connectors.php' ) ) . '" target="_blank">/wp-admin/options-connectors.php</a>）';
+        }
+    }
+
+    CSF::createSection( $prefix, [
+        'title'  => '服务模式',
+        'icon'   => 'fa fa-toggle-on',
+        'fields' => [
+            [
+                'id'      => 'service_mode',
+                'type'    => 'button_set',
+                'title'   => '服务模式',
+                'desc'    => $local_desc,
+                'default' => 'postchat',
+                'options' => [
+                    'postchat' => '洪墨AI',
+                    'local'    => '本站模式',
+                ],
+            ],
+            [
+                'type'     => 'callback',
+                'function' => 'wxs_postchat_render_account_info',
+                'class'    => 'postchat-mode-only',
+            ],
+        ],
+    ] );
+
+    // ========== 本站模式 — AI 渠道优先级 ==========
+    $channel_choices = wxs_postchat_get_available_channels();
+    $channel_options = array_merge( [ '' => '自动（系统默认）' ], $channel_choices );
+
+    CSF::createSection( $prefix, [
+        'title'  => 'AI渠道优先级',
+        'icon'   => 'fa fa-random',
+        'class'  => 'local-mode-only',
+        'fields' => [
+            [
+                'type'    => 'submessage',
+                'style'   => 'info',
+                'content' => '设置本站模式调用 AI 时的渠道优先级。主渠道优先使用，不可用时自动切换到兜底渠道。<br>'
+                    . '留空为「自动」则由 WordPress AI Client 自行选择。<br>'
+                    . '<small>渠道列表来自「AI渠道管理」插件中已启用的渠道，新增渠道后此处自动出现。</small>',
+            ],
+            [
+                'id'      => 'local_ai_primary_channel',
+                'type'    => 'select',
+                'title'   => '主渠道',
+                'desc'    => '优先使用的 AI 渠道',
+                'default' => '',
+                'options' => $channel_options,
+            ],
+            [
+                'id'      => 'local_ai_fallback_channel',
+                'type'    => 'select',
+                'title'   => '兜底渠道',
+                'desc'    => '主渠道不可用时自动切换到此渠道',
+                'default' => '',
+                'options' => $channel_options,
+            ],
+        ],
+    ] );
+
+    // ========== 本站模式 Section（始终注册，防止切换模式时丢失设置） ==========
+
+    CSF::createSection( $prefix, [
+        'title'  => '本站摘要设置',
+        'icon'   => 'fa fa-file-text-o',
+        'class'  => 'local-mode-only',
+        'fields' => [
+            [
+                'id'         => 'local_article_summary',
+                'type'       => 'switcher',
+                'title'      => '文章摘要',
+                'desc'       => '在文章页面显示AI摘要',
+                'default'    => true,
+            ],
+            [
+                'id'         => 'local_forum_summary',
+                'type'       => 'switcher',
+                'title'      => '论坛帖子摘要',
+                'desc'       => ( function_exists( '_pz' ) && _pz( 'bbs_s', true ) )
+                    ? '在论坛帖子页面显示AI摘要'
+                    : '<span style="color:#e74c3c;">⚠ 子比主题「论坛功能」未开启，此选项无法生效。请先在 子比主题设置 → 论坛 中开启论坛功能。</span>',
+                'default'    => false,
+            ],
+            [
+                'id'         => 'local_summary_title',
+                'type'       => 'text',
+                'title'      => '摘要标题',
+                'default'    => '智能总结摘要',
+            ],
+            [
+                'id'         => 'local_summary_name',
+                'type'       => 'text',
+                'title'      => '摘要助手名称',
+                'desc'       => '显示在摘要卡片上的AI名称（仅摘要区域使用，对话窗口标题在「本站AI对话」中设置）',
+                'default'    => get_bloginfo( 'name' ) . '助理',
+            ],
+            [
+                'id'         => 'local_blacklist_ids',
+                'type'       => 'text',
+                'title'      => '黑名单文章ID',
+                'desc'       => '多个ID用英文逗号分隔，这些文章不显示摘要',
+                'default'    => '',
+            ],
+            [
+                'id'         => 'local_exclude_hidden',
+                'type'       => 'switcher',
+                'title'      => '排除隐藏内容',
+                'desc'       => '开启后，AI不会读取文章中的付费/密码/VIP/评论可见等隐藏内容，防止用户通过AI对话获取付费内容',
+                'default'    => true,
+            ],
+            [
+                'id'         => 'local_typing_animate',
+                'type'       => 'switcher',
+                'title'      => '打字动画',
+                'desc'       => '摘要显示时快速逐字输出',
+                'default'    => true,
+            ],
+            [
+                'id'         => 'local_beginning_text',
+                'type'       => 'text',
+                'title'      => '文章开头文字',
+                'desc'       => 'AI生成摘要时的开头引导语',
+                'default'    => '这篇文章介绍了',
+            ],
+            [
+                'id'         => 'local_forum_beginning_text',
+                'type'       => 'text',
+                'title'      => '帖子开头文字',
+                'desc'       => 'AI生成帖子摘要时的开头引导语',
+                'default'    => '这篇帖子介绍了',
+            ],
+        ],
+    ] );
+
+    // ========== 本站模式 — AI对话设置 ==========
+    CSF::createSection( $prefix, [
+        'title'  => '本站AI对话',
+        'icon'   => 'fa fa-comments-o',
+        'class'  => 'local-mode-only',
+        'fields' => [
+            [
+                'id'         => 'local_enable_chat',
+                'type'       => 'switcher',
+                'title'      => '启用AI对话',
+                'desc'       => '启用后会劫持子比悬浮按钮打开自建对话窗口，通过Meilisearch检索知识库 + WP AI生成回答',
+                'default'    => false,
+            ],
+            [
+                'type'       => 'notice',
+                'style'      => 'info',
+                'content'    => '<strong>使用方法：</strong>在子比主题设置 → 全局&功能 → 右侧悬浮按钮 → 更多按钮 → 添加按钮，简介填写「AI对话」，URL填写下方配置的「查找按钮URL」值（默认 #ai-duihua）',
+                'dependency' => [ 'local_enable_chat', '==', true ],
+            ],
+            [
+                'id'         => 'local_system_prompt',
+                'type'       => 'textarea',
+                'title'      => '人格提示词',
+                'desc'       => '支持变量：<code>{{question}}</code> 用户问题、<code>{{context}}</code> 知识库检索结果（含文章+自定义知识）',
+                'default'    => wxs_postchat_default_local_prompt(),
+                'dependency' => [ 'local_enable_chat', '==', true ],
+            ],
+            [
+                'id'         => 'local_chat_title',
+                'type'       => 'text',
+                'title'      => '助理标题',
+                'default'    => get_bloginfo( 'name' ) . '助理',
+                'dependency' => [ 'local_enable_chat', '==', true ],
+            ],
+            [
+                'id'         => 'local_chat_desc',
+                'type'       => 'text',
+                'title'      => '助理描述',
+                'default'    => '有任何疑问都可以问我~',
+                'dependency' => [ 'local_enable_chat', '==', true ],
+            ],
+            [
+                'id'         => 'local_mobile_mode',
+                'type'       => 'select',
+                'title'      => '移动端模式',
+                'default'    => 'fullscreen',
+                'options'    => [
+                    'fullscreen' => '全屏模式',
+                    'popup'      => '弹窗模式',
+                ],
+                'dependency' => [ 'local_enable_chat', '==', true ],
+            ],
+            [
+                'id'         => 'local_desktop_mode',
+                'type'       => 'select',
+                'title'      => '电脑端模式',
+                'default'    => 'sidebar',
+                'options'    => [
+                    'sidebar' => '侧边栏模式',
+                    'popup'   => '弹窗模式',
+                ],
+                'dependency' => [ 'local_enable_chat', '==', true ],
+            ],
+            [
+                'id'         => 'local_context_limit',
+                'type'       => 'number',
+                'title'      => '上下文携带轮数',
+                'desc'       => '每次提问时，携带最近几轮历史发送给AI，让AI理解前后文（1轮=1问1答）。<br>仅影响AI"记忆力"，不限制用户发言次数。数值越大token消耗越多。设为0则每次提问独立（无记忆）',
+                'default'    => 5,
+                'dependency' => [ 'local_enable_chat', '==', true ],
+            ],
+            [
+                'id'         => 'local_default_input',
+                'type'       => 'text',
+                'title'      => '默认输入内容',
+                'desc'       => '支持变量：<code>{title}</code> 文章标题',
+                'default'    => '请问在《{title}》中',
+                'dependency' => [ 'local_enable_chat', '==', true ],
+            ],
+            [
+                'id'         => 'local_exclude_site_title',
+                'type'       => 'switcher',
+                'title'      => '排除标题中的站点名',
+                'desc'       => '开启后，{title} 变量自动移除标题中的「 - 网站名」后缀',
+                'default'    => true,
+                'dependency' => [ 'local_enable_chat', '==', true ],
+            ],
+            [
+                'id'         => 'local_btn_selector',
+                'type'       => 'text',
+                'title'      => '查找按钮URL',
+                'desc'       => '子比悬浮按钮中配置的URL值，用于查找并劫持该按钮为AI对话触发器',
+                'default'    => '#ai-duihua',
+                'dependency' => [ 'local_enable_chat', '==', true ],
+            ],
+            [
+                'id'         => 'local_btn_svg_icon',
+                'type'       => 'text',
+                'title'      => '按钮 SVG 图标',
+                'desc'       => '填写 xlink:href 值替换按钮图标，留空保持原始图标',
+                'default'    => '',
+                'dependency' => [ 'local_enable_chat', '==', true ],
+            ],
+        ],
+    ] );
+
+    // ========== 本站模式 — AI对话限制与记录 ==========
+    CSF::createSection( $prefix, [
+        'title'  => '对话限制与记录',
+        'icon'   => 'fa fa-shield',
+        'class'  => 'local-mode-only',
+        'fields' => [
+            [
+                'type'    => 'submessage',
+                'style'   => 'info',
+                'content' => '控制 AI 对话的使用频率和资源消耗，防止 token 无意义消耗。对话记录存储于本站数据库。',
+            ],
+            [
+                'id'      => 'local_chat_guest_allowed',
+                'type'    => 'switcher',
+                'title'   => '允许游客使用AI对话',
+                'desc'    => '关闭后，未登录用户点击对话按钮将弹出登录框',
+                'default' => true,
+            ],
+            [
+                'id'      => 'local_chat_daily_limit',
+                'type'    => 'number',
+                'title'   => '每日对话次数上限',
+                'desc'    => '每个用户（含游客按IP识别）每天最多发送的消息条数（限制使用频率）。0表示不限制',
+                'default' => 1000,
+            ],
+            [
+                'id'      => 'local_chat_session_rounds',
+                'type'    => 'number',
+                'title'   => '单会话轮数上限',
+                'desc'    => '单个会话最多允许用户对话几轮（1轮=1问1答），达到后提示新建会话。<br>与上方「上下文携带轮数」不同：携带轮数控制AI记忆深度，此项控制会话总长度。0表示不限制',
+                'default' => 10,
+            ],
+            [
+                'id'      => 'local_chat_session_tokens',
+                'type'    => 'number',
+                'title'   => '单会话token上限',
+                'desc'    => '单个会话累计token达到此阈值时提示新建会话（按字符数粗估，1中文≈2token）。0表示不限制',
+                'default' => 10000,
+            ],
+            [
+                'id'      => 'local_chat_log_enabled',
+                'type'    => 'switcher',
+                'title'   => '启用对话记录存储',
+                'desc'    => '开启后所有对话记录存入数据库，可在后台管理页面查看',
+                'default' => true,
+            ],
+            [
+                'id'         => 'local_chat_log_max_per_user',
+                'type'       => 'number',
+                'title'      => '单用户记录存储上限',
+                'desc'       => '后台数据库中单用户最多保留的对话记录条数（管理数据库体积）。与「每日次数」不同：这里限制保存多少条，不影响用户当日能发多少消息。0表示不限制',
+                'default'    => 20,
+                'dependency' => [ 'local_chat_log_enabled', '==', true ],
+            ],
+            [
+                'id'         => 'local_chat_log_max_total',
+                'type'       => 'number',
+                'title'      => '全平台记录存储上限',
+                'desc'       => '全平台对话记录最大条数，超出后定期清理最早的。0表示不限制',
+                'default'    => 200,
+                'dependency' => [ 'local_chat_log_enabled', '==', true ],
+            ],
+            [
+                'type'       => 'content',
+                'content'    => '<a href="' . admin_url( 'admin.php?page=wxs-chat-logs' ) . '" class="button">查看对话记录 →</a>',
+                'dependency' => [ 'local_chat_log_enabled', '==', true ],
+            ],
+        ],
+    ] );
+
+    // ========== 本站模式 — 自定义知识库 ==========
+    CSF::createSection( $prefix, [
+        'title'  => '自定义知识库',
+        'icon'   => 'fa fa-book',
+        'class'  => 'local-mode-only',
+        'fields' => [
+            [
+                'type'    => 'notice',
+                'style'   => 'info',
+                'content' => '添加文章以外的额外知识，当用户提问匹配到标题关键词时，AI将自动获取对应内容辅助回答。<br>'
+                    . '<strong>示例：</strong>标题填「人工客服,联系方式」，内容填具体联系信息，当用户问到相关内容时AI就能回复。',
+            ],
+            [
+                'id'           => 'local_knowledge_items',
+                'type'         => 'group',
+                'title'        => '知识条目',
+                'button_title' => '添加知识',
+                'fields'       => [
+                    [
+                        'id'    => 'title',
+                        'type'  => 'text',
+                        'title' => '标题/关键词',
+                        'desc'  => '触发词，多个用逗号分隔（如：人工客服,联系方式,在线客服）',
+                    ],
+                    [
+                        'id'    => 'content',
+                        'type'  => 'textarea',
+                        'title' => '知识内容',
+                        'desc'  => '当用户问题匹配到标题关键词时，此内容将作为额外上下文提供给AI',
+                    ],
+                    [
+                        'id'      => 'enabled',
+                        'type'    => 'switcher',
+                        'title'   => '启用',
+                        'default' => true,
+                    ],
+                ],
+            ],
+        ],
+    ] );
+
+    // ========== 本站模式 — 专业词汇解释 ==========
+    CSF::createSection( $prefix, [
+        'title'  => '专业词汇解释',
+        'icon'   => 'fa fa-font',
+        'class'  => 'local-mode-only',
+        'fields' => [
+            [
+                'id'      => 'local_enable_glossary',
+                'type'    => 'switcher',
+                'title'   => '启用专业词汇解释',
+                'desc'    => '开启后，AI 自动识别文章中的专业术语并生成解释，电脑端鼠标悬停时显示气泡',
+                'default' => false,
+            ],
+            [
+                'id'         => 'local_glossary_max',
+                'type'       => 'number',
+                'title'      => '每篇文章最多识别词汇数',
+                'desc'       => 'AI 为每篇文章最多识别几个专业术语（默认8个）',
+                'default'    => 8,
+                'dependency' => [ 'local_enable_glossary', '==', true ],
+            ],
+            [
+                'type'       => 'content',
+                'content'    => '<a href="' . admin_url( 'admin.php?page=wxs-glossary-manage' ) . '" class="button">管理各文章词汇 →</a>',
+                'dependency' => [ 'local_enable_glossary', '==', true ],
+            ],
+        ],
+    ] );
+
+    // ========== 本站模式 — 推荐文章 ==========
+    $zib_related_enabled = function_exists( '_pz' ) && _pz( 'post_related_s' );
+    CSF::createSection( $prefix, [
+        'title'  => '相关文章推荐',
+        'icon'   => 'fa fa-th-list',
+        'class'  => 'local-mode-only',
+        'fields' => [
+            [
+                'type'    => 'notice',
+                'style'   => $zib_related_enabled ? 'success' : 'warning',
+                'content' => $zib_related_enabled
+                    ? '✓ 子比主题「相关文章」功能已开启，可正常使用本插件的AI推荐替换。'
+                    : '<strong>⚠ 子比主题「相关文章」功能未开启</strong><br>请先在 子比主题设置 → 文章页面 → 相关文章 中开启，否则本功能无法生效。<br><a href="' . admin_url( 'admin.php?page=zibll_options#tab=文章页面' ) . '" target="_blank">前往开启 →</a>',
+            ],
+            [
+                'id'      => 'local_enable_recommend',
+                'type'    => 'switcher',
+                'title'   => '启用AI相关文章推荐',
+                'desc'    => $zib_related_enabled
+                    ? '开启后使用 Meilisearch 语义检索替换子比原生相关文章'
+                    : '<span style="color:#e74c3c;">子比主题「相关文章」未开启，此选项无法生效</span>',
+                'default' => false,
+            ],
+            [
+                'id'         => 'local_recommend_count',
+                'type'       => 'number',
+                'title'      => '推荐数量',
+                'default'    => 6,
+                'dependency' => [ 'local_enable_recommend', '==', true ],
+            ],
+            [
+                'id'         => 'local_recommend_title',
+                'type'       => 'text',
+                'title'      => '推荐标题',
+                'default'    => '相关文章推荐',
+                'dependency' => [ 'local_enable_recommend', '==', true ],
+            ],
+            [
+                'id'         => 'local_recommend_cache_ttl',
+                'type'       => 'select',
+                'title'      => '推荐缓存时长',
+                'desc'       => 'Meilisearch 检索结果会缓存，命中时不再重复检索',
+                'options'    => [
+                    '12'     => '12 小时',
+                    '168'    => '7 天',
+                    '720'    => '30 天',
+                    'custom' => '自定义天数',
+                ],
+                'default'    => '12',
+                'dependency' => [ 'local_enable_recommend', '==', true ],
+            ],
+            [
+                'id'         => 'local_recommend_cache_days',
+                'type'       => 'number',
+                'title'      => '自定义缓存天数',
+                'desc'       => '设置范围 1-365 天',
+                'default'    => 7,
+                'dependency' => [ 'local_enable_recommend|local_recommend_cache_ttl', '==|==', 'true|custom' ],
+            ],
+        ],
+    ] );
+
+    // ========== 洪墨模式 Section（始终注册，防止切换模式时丢失设置） ==========
+
     // ========== 摘要设置 ==========
     CSF::createSection( $prefix, [
         'title'  => '摘要设置',
         'icon'   => 'fa fa-file-text',
+        'class'  => 'postchat-mode-only',
         'fields' => [
             [
                 'id'      => 'enable_summary',
@@ -140,12 +624,11 @@ function wxs_postchat_options() {
                 'default' => '3P-xxxxxx',
             ],
             [
-                'id'         => 'api_secret',
-                'type'       => 'text',
-                'title'      => 'API Secret',
-                'desc'       => '私有摘要模式必填，<a href="https://ai.zhheo.com/console/settings" target="_blank">洪墨AI后台用户设置</a> 获取API Secret',
-                'default'    => '',
-                'dependency' => [ 'private_summary', '==', true ],
+                'id'      => 'api_secret',
+                'type'    => 'text',
+                'title'   => 'API Secret',
+                'desc'    => '私有摘要模式必填；同时用于在「服务模式」中查询会员状态与剩余 Token。在 <a href="https://ai.zhheo.com/console/settings" target="_blank">洪墨AI后台用户设置</a> 获取（A- 开头）',
+                'default' => '',
             ],
             [
                 'type'    => 'subheading',
@@ -208,7 +691,7 @@ function wxs_postchat_options() {
                 'id'      => 'word_limit',
                 'type'    => 'text',
                 'title'   => '字数限制',
-                'desc'    => '提交给API的文章内容字数上限，默认1000，最大5000。更改此值会重新计费已有摘要',
+                'desc'    => '提交给API的文章内容字数上限，建议 1000-5000，更改此值会重新计费已有摘要',
                 'default' => '5000',
             ],
             [
@@ -278,6 +761,7 @@ function wxs_postchat_options() {
     CSF::createSection( $prefix, [
         'title'  => 'AI对话设置',
         'icon'   => 'fa fa-comments',
+        'class'  => 'postchat-mode-only',
         'fields' => [
             [
                 'id'      => 'enable_ai',
@@ -533,20 +1017,20 @@ function wxs_postchat_options() {
                 'id'         => 'black_dom',
                 'type'       => 'text',
                 'title'      => '屏蔽容器',
-                'desc'       => '屏蔽的DOM选择器，多个用英文逗号分隔（仅未开启摘要时有效）',
+                'desc'       => '已默认屏蔽 .hidden-box、.hide-content（子比隐藏内容容器），此处仅用于追加其他需要排除的选择器，多个用英文逗号分隔（仅未开启摘要时有效）',
                 'dependency' => [ 'enable_ai', '==', true ],
             ],
             [
                 'id'         => 'recommend',
                 'type'       => 'text',
                 'title'      => '推荐文章数量',
-                'desc'       => '默认为5，最大为10，设为0不显示推荐文章',
+                'desc'       => '留空则使用 PostChat 默认值（5），可填 0-10，设为 0 不显示推荐文章',
                 'dependency' => [ 'enable_ai', '==', true ],
             ],
         ],
     ] );
 
-    // ========== 用户引导设置 ==========
+    // ========== 用户引导设置（两种模式共用：本站仅引导AI按钮，洪墨引导搜索+AI按钮） ==========
     CSF::createSection( $prefix, [
         'title'  => '用户引导',
         'icon'   => 'fa fa-map-signs',
@@ -581,6 +1065,7 @@ function wxs_postchat_options() {
             [
                 'type'       => 'submessage',
                 'style'      => 'warning',
+                'class'      => 'postchat-mode-only',
                 'content'    => '<strong>⚠️ 搜索框引导依赖主题设置</strong><br>'
                     . '搜索框仅在主题开启「顶部多功能组件」时存在。请确认：<br>'
                     . '前往 <strong>子比主题 → 页面&显示 → 顶部多功能组件 → 显示规则</strong> 检查设置。<br>'
@@ -589,12 +1074,14 @@ function wxs_postchat_options() {
             ],
             [
                 'type'       => 'subheading',
+                'class'      => 'postchat-mode-only',
                 'content'    => '移动端引导开关',
                 'dependency' => [ 'enable_user_guide', '==', true ],
             ],
             [
                 'id'         => 'guide_mobile_search',
                 'type'       => 'switcher',
+                'class'      => 'postchat-mode-only',
                 'title'      => '移动端搜索框引导',
                 'desc'       => '移动端是否显示搜索框引导步骤（需主题顶部多功能组件在移动端可见）',
                 'default'    => false,
@@ -603,6 +1090,7 @@ function wxs_postchat_options() {
             [
                 'id'         => 'guide_mobile_ai_btn',
                 'type'       => 'switcher',
+                'class'      => 'postchat-mode-only',
                 'title'      => '移动端AI按钮引导',
                 'desc'       => '移动端是否显示AI对话按钮引导步骤',
                 'default'    => true,
@@ -616,6 +1104,7 @@ function wxs_postchat_options() {
             [
                 'id'         => 'guide_search_title',
                 'type'       => 'text',
+                'class'      => 'postchat-mode-only',
                 'title'      => '搜索框引导标题',
                 'default'    => '小贴士',
                 'dependency' => [ 'enable_user_guide', '==', true ],
@@ -623,6 +1112,7 @@ function wxs_postchat_options() {
             [
                 'id'         => 'guide_search_desc',
                 'type'       => 'text',
+                'class'      => 'postchat-mode-only',
                 'title'      => '搜索框引导描述',
                 'default'    => '在此处填写想搜索的内容，点击右侧AI搜索，结果更加精准哦',
                 'dependency' => [ 'enable_user_guide', '==', true ],
@@ -648,6 +1138,7 @@ function wxs_postchat_options() {
     CSF::createSection( $prefix, [
         'title'  => '相关推荐',
         'icon'   => 'fa fa-th-list',
+        'class'  => 'postchat-mode-only',
         'fields' => [
             [
                 'id'      => 'enable_related_posts',
@@ -660,16 +1151,38 @@ function wxs_postchat_options() {
                 'type'       => 'submessage',
                 'style'      => 'info',
                 'content'    => '<strong>功能说明：</strong><br>'
-                    . '• 使用 PostChat 推荐 API 获取 AI 相关文章，并缓存到 Redis（12小时 TTL）<br>'
+                    . '• 使用 PostChat 推荐 API 获取 AI 相关文章，结果写入缓存（时长见下方设置）<br>'
                     . '• 缓存未命中时立即渲染本地算法结果，后台异步请求 API<br>'
                     . '• AI 推荐不足时自动用本地算法补足<br>'
                     . '• AI 推荐的文章带「AI推荐」角标',
                 'dependency' => [ 'enable_related_posts', '==', true ],
             ],
+            [
+                'id'         => 'related_cache_ttl',
+                'type'       => 'select',
+                'title'      => '推荐缓存时长',
+                'desc'       => '缓存命中时直接读取，不再重复请求推荐 API',
+                'options'    => [
+                    '12'     => '12 小时',
+                    '168'    => '7 天',
+                    '720'    => '30 天',
+                    'custom' => '自定义天数',
+                ],
+                'default'    => '12',
+                'dependency' => [ 'enable_related_posts', '==', true ],
+            ],
+            [
+                'id'         => 'related_cache_days',
+                'type'       => 'number',
+                'title'      => '自定义缓存天数',
+                'desc'       => '设置范围 1-365 天',
+                'default'    => 7,
+                'dependency' => [ 'enable_related_posts|related_cache_ttl', '==|==', 'true|custom' ],
+            ],
         ],
     ] );
 
-    // ========== 文章摘要管理 ==========
+    // ========== 文章摘要管理（两种模式共用） ==========
     CSF::createSection( $prefix, [
         'title'  => '文章摘要管理',
         'icon'   => 'fa fa-database',
@@ -693,6 +1206,349 @@ function wxs_postchat_options() {
                 ],
             ],
         ] );
+    }
+
+    // 导航切换 JS 已通过 admin_footer 钩子输出（避免污染 AJAX 保存响应）
+}
+
+/**
+ * 处理「刷新数据」链接：清除账号信息缓存后跳回不带参数的设置页
+ */
+add_action( 'admin_init', 'wxs_postchat_handle_account_refresh' );
+function wxs_postchat_handle_account_refresh() {
+    if ( empty( $_GET['wxs_refresh_acct'] ) || empty( $_GET['page'] ) || ! is_string( $_GET['page'] ) ) {
+        return;
+    }
+    if ( 'wxs-zibll-postchat' !== sanitize_key( wp_unslash( $_GET['page'] ) ) ) {
+        return;
+    }
+    if ( ! current_user_can( 'manage_options' ) ) {
+        return;
+    }
+
+    $api_secret = trim( (string) wxs_postchat_get_option( 'api_secret', '' ) );
+    if ( '' === $api_secret ) {
+        $api_key = trim( (string) wxs_postchat_get_option( 'api_key', '' ) );
+        if ( 0 === strpos( $api_key, 'A-' ) ) {
+            $api_secret = $api_key;
+        }
+    }
+    if ( '' !== $api_secret ) {
+        delete_transient( 'wxs_postchat_acct_' . md5( $api_secret ) );
+    }
+
+    wp_safe_redirect( remove_query_arg( 'wxs_refresh_acct' ) );
+    exit;
+}
+
+/**
+ * 服务模式 — 洪墨AI 账号信息（会员状态 / 到期时间 / 剩余 Token）
+ * 仅在洪墨AI模式且已配置 API Secret 时展示
+ */
+function wxs_postchat_render_account_info( $field = [] ) {
+    if ( 'postchat' !== wxs_postchat_get_mode() ) {
+        return;
+    }
+
+    // 查询凭证：优先使用 API Secret，兼容误填到项目 Key 的情况（A- 前缀）
+    $api_secret = trim( (string) wxs_postchat_get_option( 'api_secret', '' ) );
+    if ( '' === $api_secret ) {
+        $api_key = trim( (string) wxs_postchat_get_option( 'api_key', '' ) );
+        if ( 0 === strpos( $api_key, 'A-' ) ) {
+            $api_secret = $api_key;
+        }
+    }
+
+    echo '<div style="max-width:660px;">';
+    echo '<div style="font-size:14px;font-weight:600;margin-bottom:8px;">洪墨AI 账号信息</div>';
+
+    if ( '' === $api_secret ) {
+        echo '<p style="margin:0;color:#8a8a8a;">尚未配置 API Secret，无法查询会员与 Token 信息。'
+            . '请在「摘要设置 → API Secret」中填写洪墨AI后台用户设置获取的 Secret（A- 开头）。</p>';
+        echo '</div>';
+        return;
+    }
+
+    // 缓存刷新由 admin_init 钩子处理（见 wxs_postchat_handle_account_refresh）
+
+    $info = wxs_postchat_fetch_account_info( $api_secret );
+
+    if ( is_wp_error( $info ) ) {
+        echo '<p style="margin:0;color:#e74c3c;">查询失败：' . esc_html( $info->get_error_message() ) . '</p>';
+        echo '<p style="margin:10px 0 0;font-size:12px;color:#8a8a8a;">'
+            . '<a href="' . esc_url( add_query_arg( 'wxs_refresh_acct', '1' ) ) . '">重新查询</a></p>';
+        echo '</div>';
+        return;
+    }
+
+    $vip_end_raw = isset( $info['vip_end'] ) ? (string) $info['vip_end'] : '';
+    $vip_end_ts  = ( '' !== $vip_end_raw ) ? (int) strtotime( $vip_end_raw ) : 0;
+    // 零值时间（0001-01-01T00:00:00Z）视为从未开通会员
+    $has_vip_end = $vip_end_ts > 0;
+    $is_vip      = ! empty( $info['is_vip'] );
+    $vip_level   = isset( $info['vip_level'] ) ? (int) $info['vip_level'] : 0;
+    $token       = isset( $info['token'] ) ? (int) $info['token'] : 0;
+    $open_id     = isset( $info['open_id'] ) ? (int) $info['open_id'] : 0;
+
+    $days_left = 0;
+    if ( $has_vip_end ) {
+        $days_left = (int) ceil( ( $vip_end_ts - time() ) / DAY_IN_SECONDS );
+        if ( $days_left < 0 ) {
+            $days_left = 0;
+        }
+    }
+
+    if ( $is_vip ) {
+        $status_text  = '会员' . ( $vip_level > 0 ? '（等级 ' . $vip_level . '）' : '' );
+        $status_color = '#1e8e3e';
+    } else {
+        $status_text  = '非会员';
+        $status_color = '#e74c3c';
+    }
+
+    $items = [
+        [
+            'label' => '会员状态',
+            'value' => $status_text,
+            'color' => $status_color,
+        ],
+        [
+            'label' => '会员到期',
+            'value' => $has_vip_end ? date_i18n( 'Y-m-d H:i:s', $vip_end_ts ) : '—',
+        ],
+        [
+            'label' => '剩余天数',
+            'value' => $has_vip_end ? ( $days_left > 0 ? $days_left . ' 天' : '已到期' ) : '—',
+            'color' => ( $has_vip_end && $days_left <= 0 ) ? '#e74c3c' : '',
+        ],
+        [
+            'label' => '剩余 Token',
+            'value' => number_format( $token ),
+        ],
+    ];
+
+    if ( $open_id > 0 ) {
+        $items[] = [ 'label' => '用户 ID', 'value' => (string) $open_id ];
+    }
+
+    echo '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;">';
+    foreach ( $items as $item ) {
+        echo '<div style="background:#fff;border:1px solid #e5e7eb;border-radius:6px;padding:10px 12px;">';
+        echo '<div style="font-size:12px;color:#8a8a8a;">' . esc_html( $item['label'] ) . '</div>';
+        echo '<div style="margin-top:4px;font-size:15px;font-weight:600;'
+            . ( ! empty( $item['color'] ) ? 'color:' . esc_attr( $item['color'] ) . ';' : '' ) . '">'
+            . esc_html( $item['value'] ) . '</div>';
+        echo '</div>';
+    }
+    echo '</div>';
+
+    echo '<p style="margin:10px 0 0;font-size:12px;color:#8a8a8a;">'
+        . '<a href="' . esc_url( add_query_arg( 'wxs_refresh_acct', '1' ) ) . '">刷新数据</a>（结果缓存 5 分钟）</p>';
+    echo '</div>';
+}
+
+/**
+ * 查询洪墨AI 老后端账号信息
+ *
+ * @param string $api_secret API Secret（A- 开头）
+ * @return array|WP_Error
+ */
+function wxs_postchat_fetch_account_info( $api_secret ) {
+    $cache_key = 'wxs_postchat_acct_' . md5( $api_secret );
+    $cached    = get_transient( $cache_key );
+    if ( false !== $cached ) {
+        return $cached;
+    }
+
+    $url  = add_query_arg( 'api_secret', rawurlencode( $api_secret ), 'https://api.ai.zhheo.com/api/v2/userinfo' );
+    $resp = wp_remote_get( $url, [ 'timeout' => 10 ] );
+
+    if ( is_wp_error( $resp ) ) {
+        set_transient( $cache_key, $resp, MINUTE_IN_SECONDS );
+        return $resp;
+    }
+
+    $http_code = (int) wp_remote_retrieve_response_code( $resp );
+    $body      = json_decode( wp_remote_retrieve_body( $resp ), true );
+
+    if ( ! is_array( $body ) || ! isset( $body['code'] ) ) {
+        $error = new WP_Error( 'wxs_acct_bad_response', '接口返回异常（HTTP ' . $http_code . '）' );
+        set_transient( $cache_key, $error, MINUTE_IN_SECONDS );
+        return $error;
+    }
+
+    if ( 200 !== (int) $body['code'] ) {
+        $msg   = ! empty( $body['msg'] ) ? $body['msg'] : 'HTTP ' . $http_code;
+        $error = new WP_Error( 'wxs_acct_api_error', $msg );
+        set_transient( $cache_key, $error, MINUTE_IN_SECONDS );
+        return $error;
+    }
+
+    $data = ( isset( $body['data'] ) && is_array( $body['data'] ) ) ? $body['data'] : [];
+    set_transient( $cache_key, $data, 5 * MINUTE_IN_SECONDS );
+
+    return $data;
+}
+
+/**
+ * 导航动态切换：根据服务模式隐藏不相关的导航项
+ * 通过 admin_footer 钩子输出，仅在页面渲染时执行，不影响 CSF AJAX 保存
+ */
+add_action( 'admin_footer', 'wxs_postchat_nav_toggle_script' );
+function wxs_postchat_nav_toggle_script() {
+    // 仅在本插件设置页输出
+    $screen = get_current_screen();
+    if ( ! $screen || strpos( $screen->id, 'wxs-zibll-postchat' ) === false ) {
+        return;
+    }
+    ?>
+    <style>.wxs-mode-hidden{display:none !important;}</style>
+    <script>
+    jQuery(function($) {
+        var mode = <?php echo wp_json_encode( wxs_postchat_get_option( 'service_mode', 'postchat' ) ); ?>;
+
+        // 建立 section class 与导航 li 的映射
+        function wxs_toggle_nav() {
+            var m = $('input[data-depend-id="service_mode"]:checked').val() || mode;
+            var hideClass = (m === 'local') ? 'postchat-mode-only' : 'local-mode-only';
+            var showClass = (m === 'local') ? 'local-mode-only' : 'postchat-mode-only';
+
+            // 遍历所有 section，根据 class 控制对应导航项
+            $('.csf-section').each(function() {
+                var $section = $(this);
+                var sectionId = $section.data('section-id');
+                if (!sectionId) return;
+                var $navLink = $('.csf-nav-options a[data-tab-id="' + sectionId + '"]');
+                if (!$navLink.length) return;
+                var $navLi = $navLink.closest('li');
+
+                if ($section.hasClass(hideClass)) {
+                    $navLi.addClass('wxs-mode-hidden');
+                    $section.addClass('wxs-mode-hidden');
+                } else if ($section.hasClass(showClass)) {
+                    $navLi.removeClass('wxs-mode-hidden');
+                    $section.removeClass('wxs-mode-hidden');
+                }
+            });
+
+            // 如果当前激活的导航项被隐藏了，切换到第一个可见项
+            var $active = $('.csf-nav-options a.csf-active');
+            if ($active.length && $active.closest('li').hasClass('wxs-mode-hidden')) {
+                $active.removeClass('csf-active');
+                var $first = $('.csf-nav-options li:not(.wxs-mode-hidden) a').first();
+                if ($first.length) {
+                    $first.trigger('click');
+                }
+            }
+
+            // 处理字段级别的模式隐藏
+            $('.csf-field.' + hideClass).addClass('wxs-mode-hidden');
+            $('.csf-field.' + showClass).removeClass('wxs-mode-hidden');
+        }
+
+        wxs_toggle_nav();
+        $(document).on('change', 'input[data-depend-id="service_mode"]', wxs_toggle_nav);
+        $(document).on('click', '.csf-field-button_set .csf--button', function() {
+            var $input = $(this).find('input[data-depend-id="service_mode"]');
+            if ($input.length) setTimeout(wxs_toggle_nav, 50);
+        });
+    });
+    </script>
+    <?php
+}
+
+// ==================== 模式切换时保留非活动模式的设置 ====================
+// CSF 保存时只提交当前已注册字段的值，未渲染的字段会被重置为默认值。
+// 通过 save_before 快照旧值，save_after 回填非活动模式的设置，确保切换模式不丢失数据。
+
+add_action( 'csf_' . WXS_POSTCHAT_PREFIX . '_save_before', 'wxs_postchat_before_save' );
+function wxs_postchat_before_save() {
+    $GLOBALS['_wxs_postchat_old_options'] = get_option( WXS_POSTCHAT_PREFIX, [] );
+}
+
+add_action( 'csf_' . WXS_POSTCHAT_PREFIX . '_save_after', 'wxs_postchat_after_save' );
+function wxs_postchat_after_save() {
+    if ( empty( $GLOBALS['_wxs_postchat_old_options'] ) ) {
+        return;
+    }
+
+    $old = $GLOBALS['_wxs_postchat_old_options'];
+    unset( $GLOBALS['_wxs_postchat_old_options'] );
+
+    // 从 POST 数据判断切换后的新模式（兼容 AJAX 保存和普通表单提交）
+    $new_mode = '';
+
+    // CSF AJAX 保存时数据在 $_POST['data']（JSON 字符串）中
+    if ( ! empty( $_POST['data'] ) ) {
+        $ajax_data = json_decode( wp_unslash( trim( $_POST['data'] ) ), true );
+        if ( isset( $ajax_data[ WXS_POSTCHAT_PREFIX ]['service_mode'] ) ) {
+            $new_mode = sanitize_text_field( $ajax_data[ WXS_POSTCHAT_PREFIX ]['service_mode'] );
+        }
+    }
+
+    // 普通表单提交时数据直接在 $_POST 中
+    if ( empty( $new_mode ) && isset( $_POST[ WXS_POSTCHAT_PREFIX ]['service_mode'] ) ) {
+        $new_mode = sanitize_text_field( wp_unslash( $_POST[ WXS_POSTCHAT_PREFIX ]['service_mode'] ) );
+    }
+
+    // 兜底：从刚保存的数据库值获取当前模式
+    if ( empty( $new_mode ) ) {
+        $saved = get_option( WXS_POSTCHAT_PREFIX, [] );
+        $new_mode = isset( $saved['service_mode'] ) ? $saved['service_mode'] : 'postchat';
+    }
+
+    // 洪墨模式独有键
+    $postchat_keys = [
+        'enable_summary', 'enable_article_summary', 'enable_forum_summary',
+        'private_summary', 'api_key', 'api_secret', 'post_selector', 'forum_post_selector',
+        'summary_title', 'summary_name', 'post_url', 'forum_post_url',
+        'blacklist_urls', 'word_limit', 'typing_animate', 'summary_theme',
+        'podcast', 'summary_css', 'beginning_text', 'forum_beginning_text',
+        'inject_dom', 'loading_text',
+        'enable_ai', 'enable_ai_search', 'enable_ai_btn', 'ai_btn_mode',
+        'ai_btn_selector', 'ai_btn_svg_icon', 'background_color', 'fill_color',
+        'btn_bottom', 'btn_left', 'btn_width', 'btn_height',
+        'user_title', 'user_desc', 'mobile_user_mode', 'desktop_user_mode',
+        'frame_width', 'frame_height', 'user_icon', 'default_input',
+        'exclude_site_title', 'upload_web', 'hot_words', 'show_invite_link',
+        'default_chat_questions', 'default_search_questions', 'black_dom', 'recommend',
+        'enable_related_posts', 'related_cache_ttl', 'related_cache_days',
+    ];
+
+    // 本站模式独有键
+    $local_keys = [
+        'local_ai_primary_channel', 'local_ai_fallback_channel',
+        'local_article_summary', 'local_forum_summary', 'local_summary_title',
+        'local_summary_name', 'local_blacklist_ids', 'local_exclude_hidden',
+        'local_typing_animate', 'local_beginning_text', 'local_forum_beginning_text',
+        'local_enable_chat', 'local_system_prompt', 'local_chat_title', 'local_chat_desc',
+        'local_mobile_mode', 'local_desktop_mode', 'local_default_input',
+        'local_exclude_site_title', 'local_btn_selector', 'local_btn_svg_icon',
+        'local_context_limit',
+        'local_chat_guest_allowed', 'local_chat_daily_limit',
+        'local_chat_session_rounds', 'local_chat_session_tokens',
+        'local_chat_log_enabled', 'local_chat_log_max_per_user', 'local_chat_log_max_total',
+        'local_knowledge_items', 'local_enable_glossary', 'local_glossary_max',
+        'local_enable_recommend', 'local_recommend_count', 'local_recommend_title',
+        'local_recommend_cache_ttl', 'local_recommend_cache_days',
+    ];
+
+    // 非活动模式的键列表
+    $inactive_keys = ( $new_mode === 'local' ) ? $postchat_keys : $local_keys;
+
+    // 回填旧值
+    $current = get_option( WXS_POSTCHAT_PREFIX, [] );
+    $changed = false;
+
+    foreach ( $inactive_keys as $key ) {
+        if ( array_key_exists( $key, $old ) ) {
+            $current[ $key ] = $old[ $key ];
+            $changed = true;
+        }
+    }
+
+    if ( $changed ) {
+        update_option( WXS_POSTCHAT_PREFIX, $current );
     }
 }
 
@@ -727,11 +1583,27 @@ function wxs_postchat_render_summary_panel( $post_type, $label ) {
     $sfx = esc_attr( $post_type );
 
     // ---------- 批量生成区域 ----------
+    // 两种模式共用同一前端面板，说明文案与间隔策略按服务模式区分
+    $is_local = ( 'local' === wxs_postchat_get_mode() );
+    if ( $is_local ) {
+        $batch_desc   = '逐条调用本站 AI 渠道生成摘要，不会修改' . $label . '更新时间。需先配置 AI 渠道并启用 Meilisearch。';
+        $batch_confirm = '每生成一条摘要会调用一次 AI 模型，确认开始？';
+    } else {
+        $batch_desc   = '逐条调用 PostChat API 生成，每条间隔可调，不会修改' . $label . '更新时间。需要 API Key 和 API Secret。';
+        $batch_confirm = '每生成一条摘要会消耗 PostChat 额度，确认开始？';
+    }
+    // 确认弹窗内容（本地模式无请求间隔，不显示耗时预估）
+    $confirm_msg_js = $is_local
+        ? '"\u68c0\u6d4b\u5230 "+total+" \u7bc7"+typeLabel+"\u7f3a\u5c11\u6458\u8981\u3002\n\n"+confirmTip'
+        : '"\u68c0\u6d4b\u5230 "+total+" \u7bc7"+typeLabel+"\u7f3a\u5c11\u6458\u8981\uff0c\u6bcf\u6761\u95f4\u9694 "+delaySelect.value+" \u79d2\uff0c\u9884\u8ba1\u8017\u65f6\u7ea6 "+Math.ceil(total*parseInt(delaySelect.value,10)/60)+" \u5206\u949f\u3002\n\n"+confirmTip';
+
     echo '<div id="wxs-batch-panel-' . $sfx . '" style="margin-bottom:20px;padding:16px;background:#fffbe6;border-left:4px solid #faad14;border-radius:4px;">';
     echo '<strong>⚡ 批量生成缺失摘要</strong>';
-    echo '<p style="margin:8px 0 4px;font-size:13px;color:#666;">逐条调用 PostChat API 生成，每条间隔可调，不会修改' . esc_html( $label ) . '更新时间。需要 API Key 和 API Secret。</p>';
+    echo '<p style="margin:8px 0 4px;font-size:13px;color:#666;">' . esc_html( $batch_desc ) . '</p>';
     echo '<div style="margin:10px 0;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">';
-    echo '<label style="font-size:13px;">请求间隔：<select id="wxs-batch-delay-' . $sfx . '"><option value="3">3秒</option><option value="5" selected>5秒</option><option value="8">8秒</option><option value="10">10秒</option><option value="15">15秒</option></select></label>';
+    if ( ! $is_local ) {
+        echo '<label style="font-size:13px;">请求间隔：<select id="wxs-batch-delay-' . $sfx . '"><option value="3">3秒</option><option value="5" selected>5秒</option><option value="8">8秒</option><option value="10">10秒</option><option value="15">15秒</option></select></label>';
+    }
     echo '<button type="button" id="wxs-batch-start-' . $sfx . '" class="button button-primary" style="min-width:120px;">🔍 检测缺失' . esc_html( $label ) . '</button>';
     echo '<button type="button" id="wxs-batch-stop-' . $sfx . '" class="button" style="min-width:80px;display:none;">⏹ 停止</button>';
     echo '</div>';
@@ -746,7 +1618,8 @@ function wxs_postchat_render_summary_panel( $post_type, $label ) {
     echo '<script>';
     echo '(function(){"use strict";';
     echo 'var nonce="' . esc_js( $batch_nonce ) . '",ajaxUrl="' . esc_js( admin_url( 'admin-ajax.php' ) ) . '",postType="' . esc_js( $post_type ) . '",typeLabel="' . esc_js( $label ) . '";';
-    echo 'var ids=[],current=0,total=0,success=0,fail=0,running=false;';
+    echo 'var isLocal=' . ( $is_local ? 'true' : 'false' ) . ',confirmTip="' . esc_js( $batch_confirm ) . '";';
+    echo 'var ids=[],current=0,total=0,success=0,fail=0,skip=0,running=false;';
     echo 'var btnStart=document.getElementById("wxs-batch-start-"+postType),btnStop=document.getElementById("wxs-batch-stop-"+postType);';
     echo 'var elProgress=document.getElementById("wxs-batch-progress-"+postType),elBar=document.getElementById("wxs-batch-bar-"+postType);';
     echo 'var elStatus=document.getElementById("wxs-batch-status-"+postType),elLog=document.getElementById("wxs-batch-log-"+postType);';
@@ -755,14 +1628,13 @@ function wxs_postchat_render_summary_panel( $post_type, $label ) {
     echo 'function updateBar(){var pct=total?Math.round(current/total*100):0;elBar.style.width=pct+"%";elStatus.textContent="进度: "+current+"/"+total+"（成功"+success+" 失败"+fail+" 跳过"+skip+"）";}';
     echo 'function processNext(){if(!running||current>=ids.length){running=false;btnStart.disabled=false;btnStart.textContent="\ud83d\udd0d 检测缺失"+typeLabel;btnStop.style.display="none";if(current>=ids.length&&total>0){elStatus.textContent+=" \u2014 \u2705 全部完成！建议刷新页面查看";};return;}';
     echo 'var pid=ids[current],fd=new FormData();fd.append("action","wxs_postchat_batch_generate_single");fd.append("nonce",nonce);fd.append("post_id",pid);';
-    echo 'fetch(ajaxUrl,{method:"POST",body:fd}).then(function(r){return r.json()}).then(function(r){current++;var isSkip=false;if(r.success){success++;log("\u2713 #"+pid+" "+r.data.title+" \u2014 "+r.data.summary,true);}else{var msg=(r.data&&r.data.message)?r.data.message:(r.data||"\u672a\u77e5\u9519\u8bef");isSkip=r.data&&r.data.skip;if(isSkip){skip++;log("\u25cb #"+pid+" "+msg,false);}else{fail++;log("\u2717 #"+pid+" "+msg,false);}}updateBar();var delay=isSkip?200:(parseInt(delaySelect.value,10)*1000||5000);setTimeout(processNext,delay);}).catch(function(e){current++;fail++;log("\u2717 #"+pid+" \u7f51\u7edc\u9519\u8bef: "+e.message,false);updateBar();setTimeout(processNext,3000);});}';
-    echo 'var skip=0;';
+    echo 'fetch(ajaxUrl,{method:"POST",body:fd}).then(function(r){return r.json()}).then(function(r){current++;var isSkip=false;if(r.success){success++;log("\u2713 #"+pid+" "+r.data.title+" \u2014 "+r.data.summary,true);}else{var msg=(r.data&&r.data.message)?r.data.message:(r.data||"\u672a\u77e5\u9519\u8bef");isSkip=r.data&&r.data.skip;if(isSkip){skip++;log("\u25cb #"+pid+" "+msg,false);}else{fail++;log("\u2717 #"+pid+" "+msg,false);}}updateBar();var delay=isSkip?200:(isLocal?800:(delaySelect?parseInt(delaySelect.value,10)*1000||5000:5000));setTimeout(processNext,delay);}).catch(function(e){current++;fail++;log("\u2717 #"+pid+" \u7f51\u7edc\u9519\u8bef: "+e.message,false);updateBar();setTimeout(processNext,3000);});}';
     echo 'btnStart.addEventListener("click",function(){if(running)return;btnStart.disabled=true;btnStart.textContent="\u6b63\u5728\u68c0\u6d4b...";elLog.innerHTML="";';
     echo 'var fd=new FormData();fd.append("action","wxs_postchat_batch_get_missing");fd.append("nonce",nonce);fd.append("post_type",postType);';
-    echo 'fetch(ajaxUrl,{method:"POST",body:fd}).then(function(r){return r.json()}).then(function(r){if(!r.success){alert(r.data||"\u83b7\u53d6\u5931\u8d25");btnStart.disabled=false;btnStart.textContent="\ud83d\udd0d 检测缺失"+typeLabel;return;}';
+    echo 'fetch(ajaxUrl,{method:"POST",body:fd}).then(function(r){return r.json()}).then(function(r){if(!r.success){var m=(r.data&&r.data.message)?r.data.message:(r.data||"\u83b7\u53d6\u5931\u8d25");alert(m);btnStart.disabled=false;btnStart.textContent="\ud83d\udd0d 检测缺失"+typeLabel;return;}';
     echo 'ids=r.data.ids;total=ids.length;current=0;success=0;fail=0;skip=0;';
     echo 'if(total===0){alert("\u6240\u6709"+typeLabel+"\u90fd\u5df2\u6709\u6458\u8981\uff0c\u65e0\u9700\u6279\u91cf\u751f\u6210");btnStart.disabled=false;btnStart.textContent="\ud83d\udd0d 检测缺失"+typeLabel;return;}';
-    echo 'if(!confirm("\u68c0\u6d4b\u5230 "+total+" \u7bc7"+typeLabel+"\u7f3a\u5c11\u6458\u8981\uff0c\u6bcf\u6761\u95f4\u9694 "+delaySelect.value+" \u79d2\uff0c\u9884\u8ba1\u8017\u65f6\u7ea6 "+Math.ceil(total*parseInt(delaySelect.value,10)/60)+" \u5206\u949f\u3002\n\n\u6bcf\u751f\u6210\u4e00\u6761\u6458\u8981\u4f1a\u6d88\u8017 PostChat \u989d\u5ea6\uff0c\u786e\u8ba4\u5f00\u59cb\uff1f")){btnStart.disabled=false;btnStart.textContent="\ud83d\udd0d 检测缺失"+typeLabel;return;}';
+    echo 'if(!confirm(' . $confirm_msg_js . ')){btnStart.disabled=false;btnStart.textContent="\ud83d\udd0d 检测缺失"+typeLabel;return;}';
     echo 'running=true;elProgress.style.display="block";elLog.style.display="block";btnStart.textContent="\u23f3 生成中...";btnStop.style.display="inline-block";updateBar();processNext();';
     echo '}).catch(function(e){alert("\u8bf7\u6c42\u5931\u8d25: "+e.message);btnStart.disabled=false;btnStart.textContent="\ud83d\udd0d 检测缺失"+typeLabel;});});';
     echo 'btnStop.addEventListener("click",function(){running=false;elStatus.textContent+=" \u2014 \u23f9 \u5df2\u624b\u52a8\u505c\u6b62";});';

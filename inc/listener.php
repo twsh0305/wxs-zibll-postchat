@@ -16,7 +16,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @return bool
  */
 function wxs_postchat_should_enable_listener() {
-    $enable_summary  = wxs_postchat_get_option( 'enable_summary', true );
+    // 默认值与设置页保持一致（启用AI摘要默认关闭）
+    $enable_summary  = wxs_postchat_get_option( 'enable_summary', false );
     $private_summary = wxs_postchat_get_option( 'private_summary', false );
     $api_secret      = wxs_postchat_get_option( 'api_secret', '' );
 
@@ -53,7 +54,7 @@ function wxs_postchat_article_publish_listener( $post_ID, $post, $update ) {
             return;
         }
     } elseif ( $post->post_type === 'forum_post' ) {
-        if ( ! wxs_postchat_get_option( 'enable_forum_summary', true ) ) {
+        if ( ! wxs_postchat_get_option( 'enable_forum_summary', false ) ) {
             return;
         }
         if ( ! function_exists( '_pz' ) || ! _pz( 'bbs_s', true ) ) {
@@ -88,43 +89,7 @@ add_action( 'wp_insert_post', 'wxs_postchat_article_publish_listener', 20, 3 );
  * @param string $content 原始HTML内容
  * @return string 清理后的纯文本
  */
-function wxs_postchat_clean_html_content( $content ) {
-    $content = html_entity_decode( $content, ENT_QUOTES | ENT_HTML5, 'UTF-8' );
-
-    // 移除WordPress块标记
-    $content = preg_replace( '/<!--\s*\/?wp:(.*?)-->/', '', $content );
-    $content = preg_replace( '/<!--(.*?)-->/', '', $content );
-
-    // 移除代码块（防止代码内容触发WAF拦截）
-    $content = preg_replace( '/<pre[^>]*>.*?<\/pre>/is', '', $content );
-    $content = preg_replace( '/<code[^>]*>.*?<\/code>/is', '', $content );
-    $content = preg_replace( '/<script[^>]*>.*?<\/script>/is', '', $content );
-    $content = preg_replace( '/<style[^>]*>.*?<\/style>/is', '', $content );
-    $content = preg_replace( '/<textarea[^>]*>.*?<\/textarea>/is', '', $content );
-
-    // 移除短代码
-    $content = strip_shortcodes( $content );
-
-    // 保留段落分隔后去除HTML
-    $content = str_replace(
-        [ '</p>', '</h1>', '</h2>', '</h3>', '</h4>', '</h5>', '</h6>', '<br>', '<br />' ],
-        "\n",
-        $content
-    );
-    $content = wp_strip_all_tags( $content, true );
-
-    // 清理空白
-    $content = preg_replace( '/\s+/', ' ', $content );
-    $content = trim( $content );
-
-    // 限制字数
-    $word_limit = intval( wxs_postchat_get_option( 'word_limit', '5000' ) );
-    if ( $word_limit > 0 && mb_strlen( $content, 'UTF-8' ) > $word_limit ) {
-        $content = mb_substr( $content, 0, $word_limit, 'UTF-8' ) . '...';
-    }
-
-    return $content;
-}
+// 注：wxs_postchat_clean_html_content() 已移至 inc/helpers.php 供两种模式共用
 
 /**
  * 从PostChat API获取文章摘要
@@ -321,7 +286,7 @@ function wxs_postchat_ajax_batch_get_missing() {
         // 兼容旧调用：不传则查全部
         $post_types = [ 'post' ];
         $forum_enabled = function_exists( '_pz' ) && _pz( 'bbs_s', true );
-        if ( $forum_enabled && wxs_postchat_get_option( 'enable_forum_summary', true ) ) {
+        if ( $forum_enabled && wxs_postchat_get_option( 'enable_forum_summary', false ) ) {
             $post_types[] = 'forum_post';
         }
     }

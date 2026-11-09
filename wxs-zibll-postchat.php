@@ -2,8 +2,8 @@
 /**
  * Plugin Name: 子比PostChat
  * Plugin URI: https://wxsnote.cn/7673.html
- * Description: 基于子比主题的PostChat AI摘要与对话集成插件，支持私有摘要存储与前端注入。
- * Version: 1.0.1
+ * Description: 基于子比主题的AI摘要与对话集成插件，支持洪墨AI云端和本站模式（WP AI Client + Meilisearch）。
+ * Version: 2.1.10
  * Author: 天无神话
  * Author URI: https://wxsnote.cn
  * License: GPL v2 or later
@@ -16,11 +16,11 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // 定义插件常量
-define( 'WXS_POSTCHAT_VERSION', '1.0.0' );
+define( 'WXS_POSTCHAT_VERSION', '2.1.10' );
 define( 'WXS_POSTCHAT_DIR', plugin_dir_path( __FILE__ ) );
 define( 'WXS_POSTCHAT_URL', plugin_dir_url( __FILE__ ) );
 define( 'WXS_POSTCHAT_PREFIX', 'wxs_postchat_settings' );
-define( 'WXS_POSTCHAT_DB_VERSION', '1.0.0' );
+define( 'WXS_POSTCHAT_DB_VERSION', '1.1.0' );
 
 /**
  * 核心配置获取函数
@@ -58,14 +58,87 @@ if ( get_template() !== 'zibll' ) {
     return;
 }
 
-// 加载功能文件
+/**
+ * 获取当前服务模式
+ *
+ * @return string 'postchat' | 'local'
+ */
+function wxs_postchat_get_mode() {
+    return wxs_postchat_get_option( 'service_mode', 'postchat' );
+}
+
+/**
+ * 检测本站模式前置条件是否满足
+ *
+ * @return bool
+ */
+function wxs_postchat_local_ready() {
+    // Meilisearch 启用检测（对应子比主题设置 → 搜索 → Meilisearch智能搜索）
+    $ms_ok = function_exists( '_pz' ) && _pz( 'search_ms_s' );
+    // WP AI Client 可用检测
+    $ai_ok = function_exists( 'wp_ai_client_prompt' ) && function_exists( 'wp_supports_ai' ) && wp_supports_ai();
+    return $ms_ok && $ai_ok;
+}
+
+// 加载功能文件（CSF 选项始终加载）
 require_once WXS_POSTCHAT_DIR . 'inc/options.php';
-require_once WXS_POSTCHAT_DIR . 'inc/output.php';
-require_once WXS_POSTCHAT_DIR . 'inc/listener.php';
-require_once WXS_POSTCHAT_DIR . 'inc/related-posts.php';
+// 共享工具函数（两种模式共用）
+require_once WXS_POSTCHAT_DIR . 'inc/helpers.php';
+
+// 根据模式条件加载对应功能文件
+if ( wxs_postchat_get_mode() === 'local' ) {
+    // 本站模式：WP AI Client + Meilisearch
+    // 无论 ready 与否均加载本地文件，各功能内部自检 AI 客户端可用性
+    require_once WXS_POSTCHAT_DIR . 'inc/local/summary-local.php';
+    require_once WXS_POSTCHAT_DIR . 'inc/local/chat-local.php';
+    require_once WXS_POSTCHAT_DIR . 'inc/local/output-local.php';
+    require_once WXS_POSTCHAT_DIR . 'inc/local/knowledge-local.php';
+    require_once WXS_POSTCHAT_DIR . 'inc/local/glossary-local.php';
+    require_once WXS_POSTCHAT_DIR . 'inc/local/recommend-local.php';
+} else {
+    // 洪墨模式：PostChat 云端服务（现有逻辑不变）
+    require_once WXS_POSTCHAT_DIR . 'inc/output.php';
+    require_once WXS_POSTCHAT_DIR . 'inc/listener.php';
+    // 相关文章推荐（仅 PostChat 模式，依赖远程 API）
+    require_once WXS_POSTCHAT_DIR . 'inc/related-posts.php';
+}
 
 // 在主文件 scope 注册停用钩子（符合 WP 插件开发规范）
 register_deactivation_hook( __FILE__, 'wxs_postchat_deactivation_cleanup' );
+// 激活时执行数据库迁移（建表等），不在请求路径中做 schema 变更
+register_activation_hook( __FILE__, 'wxs_postchat_maybe_upgrade' );
+
+/**
+ * 插件停用时清理所有调度事件
+ */
+if ( ! function_exists( 'wxs_postchat_deactivation_cleanup' ) ) {
+    function wxs_postchat_deactivation_cleanup() {
+        $crons = _get_cron_array();
+        if ( empty( $crons ) ) {
+            return;
+        }
+        $hooks = [
+            'wxs_postchat_generate_summary_event',
+            'wxs_local_generate_summary_event',
+            'wxs_local_generate_glossary_event',
+        ];
+        $modified = false;
+        foreach ( $crons as $timestamp => $cron ) {
+            foreach ( $hooks as $hook ) {
+                if ( isset( $cron[ $hook ] ) ) {
+                    unset( $crons[ $timestamp ][ $hook ] );
+                    $modified = true;
+                }
+            }
+            if ( empty( $crons[ $timestamp ] ) ) {
+                unset( $crons[ $timestamp ] );
+            }
+        }
+        if ( $modified ) {
+            _set_cron_array( $crons );
+        }
+    }
+}
 
 /**
  * 数据库版本升级检查
@@ -78,10 +151,29 @@ function wxs_postchat_maybe_upgrade() {
         return;
     }
 
-    // 后续版本升级逻辑示例：
-    // if ( version_compare( $current_db_version, '1.1.0', '<' ) ) {
-    //     // 执行 1.1.0 升级操作
-    // }
+    global $wpdb;
+
+    // 1.1.0: 创建对话记录表
+    if ( version_compare( $current_db_version, '1.1.0', '<' ) ) {
+        $table = $wpdb->prefix . 'wxs_chat_logs';
+        $charset_collate = $wpdb->get_charset_collate();
+        $sql = "CREATE TABLE {$table} (
+            id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+            session_id VARCHAR(64) NOT NULL DEFAULT '',
+            user_id BIGINT UNSIGNED NOT NULL DEFAULT 0,
+            user_ip VARCHAR(45) NOT NULL DEFAULT '',
+            role VARCHAR(10) NOT NULL DEFAULT 'user',
+            message TEXT NOT NULL,
+            tokens_used INT UNSIGNED NOT NULL DEFAULT 0,
+            created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY idx_session (session_id),
+            KEY idx_user (user_id),
+            KEY idx_created (created_at)
+        ) {$charset_collate};";
+        require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+        dbDelta( $sql );
+    }
 
     update_option( 'wxs_postchat_db_version', WXS_POSTCHAT_DB_VERSION );
 }

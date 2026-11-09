@@ -2,7 +2,7 @@
 
 > 基于子比主题的 PostChat AI 摘要与对话集成插件，支持私有摘要存储与前端注入。
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://wxsnote.cn/7673.html)
+[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://wxsnote.cn/7673.html)
 [![WordPress](https://img.shields.io/badge/WordPress-5.0%2B-green.svg)](https://wordpress.org)
 [![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)](https://php.net)
 [![License](https://img.shields.io/badge/license-GPL%20v2-orange.svg)](LICENSE)
@@ -187,6 +187,30 @@ wxs-zibll-postchat/
 ### 函数前缀
 
 所有函数以 `wxs_postchat_` 为前缀，确保不与主题或其他插件冲突。
+
+---
+
+## 📅 更新日志
+
+### v1.1.0
+
+在原有洪墨AI云端模式基础上，新增「本站模式」：内容生成走 WordPress AI Client，文章检索走 Meilisearch，数据全部留在本站。
+
+**新增**
+- **服务模式切换**：后台可选「洪墨AI / 本站模式」，两种模式互不影响，升级后原配置继续可用
+- **本站 AI 摘要**：本站生成文章/论坛摘要，支持黑名单文章 ID、排除子比隐藏内容、打字动画
+- **本站 AI 对话**：Meilisearch RAG 检索 + 多轮上下文，自动剔除隐藏/付费内容，避免 AI 泄露
+- **对话限制**：游客开关、每日消息上限、单会话轮数与 token 上限
+- **对话记录**：新增 `wp_wxs_chat_logs` 表，支持单用户/全平台存储上限与自动清理，后台可查看管理
+- **自定义知识库**：按关键词匹配补充站外知识，优先注入 AI 上下文
+- **专业词汇解释**：AI 自动识别生僻词并生成解释，前台 hover 气泡展示（仅电脑端）
+- **本站相关推荐**：用 Meilisearch 替换子比原生相关文章，保留一言、作者卡、上下篇
+- **AI 渠道优先级**：可指定主渠道与兜底渠道，主渠道不可用时自动切换（对接「AI渠道管理」插件）
+- **前端**：对话支持 Markdown 渲染（marked.js），新增本站模式用户引导
+
+**其他**
+- 数据库版本升级至 1.1.0，激活时自动建表
+- 新增共享工具函数（`inc/helpers.php`）与本站模式资源文件（`wxs-ai-chat` / `wxs-local-mode`）
 
 ---
 

@@ -18,22 +18,40 @@ delete_option( 'wxs_postchat_db_version' );
 
 // 批量删除文章元数据
 global $wpdb;
-$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key IN ('_wxs_postchat_summary', '_wxs_postchat_content_hash')" );
+$wpdb->query( "DELETE FROM {$wpdb->postmeta} WHERE meta_key IN (
+    '_wxs_postchat_summary',
+    '_wxs_postchat_content_hash',
+    '_wxs_postchat_glossary',
+    '_wxs_postchat_glossary_hash'
+)" );
 
 // 清理残留的计划任务
 $crons = _get_cron_array();
 if ( ! empty( $crons ) ) {
+    $hooks_to_clean = [
+        'wxs_postchat_generate_summary_event',
+        'wxs_local_generate_summary_event',
+        'wxs_local_generate_glossary_event',
+    ];
     $modified = false;
     foreach ( $crons as $timestamp => $cron ) {
-        if ( isset( $cron['wxs_postchat_generate_summary_event'] ) ) {
-            unset( $crons[ $timestamp ]['wxs_postchat_generate_summary_event'] );
-            if ( empty( $crons[ $timestamp ] ) ) {
-                unset( $crons[ $timestamp ] );
+        foreach ( $hooks_to_clean as $hook ) {
+            if ( isset( $cron[ $hook ] ) ) {
+                unset( $crons[ $timestamp ][ $hook ] );
+                $modified = true;
             }
-            $modified = true;
+        }
+        if ( empty( $crons[ $timestamp ] ) ) {
+            unset( $crons[ $timestamp ] );
         }
     }
     if ( $modified ) {
         _set_cron_array( $crons );
     }
 }
+
+// 清理 transient 锁
+$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_wxs_summary_visit_%' OR option_name LIKE '_transient_timeout_wxs_summary_visit_%' OR option_name LIKE '_transient_wxs_glossary_visit_%' OR option_name LIKE '_transient_timeout_wxs_glossary_visit_%' OR option_name LIKE '_transient_wxs_recommend_%' OR option_name LIKE '_transient_timeout_wxs_recommend_%' OR option_name LIKE '_transient_wxs_chat_rate_%' OR option_name LIKE '_transient_timeout_wxs_chat_rate_%' OR option_name LIKE '_transient_wxs_chat_daily_%' OR option_name LIKE '_transient_timeout_wxs_chat_daily_%'" );
+
+// 删除对话记录表
+$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}wxs_chat_logs" );
